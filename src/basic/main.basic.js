@@ -42,12 +42,11 @@ function main() {
   let manualToggle;
   let manualOverlay;
   let manualColumn;
-  let lightningDelay;
-  
+
   // Context 상태 초기화
   context.updateCartTotals(0, 0, 0);
   context.setLastSelected(null);
-  
+
   root = document.getElementById("app");
   header = createCartHeader();
   const sel = createProductSelect();
@@ -75,12 +74,12 @@ function main() {
   const cartDisp = createCartItemsContainer();
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
-  
+
   // DOM 참조를 Context에 저장 (리액트에서는 useRef로 관리 예정)
-  context.setRef('sel', sel);
-  context.setRef('addBtn', addBtn);
-  context.setRef('stockInfo', stockInfo);
-  context.setRef('cartDisp', cartDisp);
+  context.setRef("sel", sel);
+  context.setRef("addBtn", addBtn);
+  context.setRef("stockInfo", stockInfo);
+  context.setRef("cartDisp", cartDisp);
   rightColumn = createOrderSummaryPanel();
   sum = rightColumn.querySelector("#cart-total");
   manualToggle = createHelpToggleButton();
@@ -105,8 +104,15 @@ function main() {
   root.appendChild(manualOverlay);
   onUpdateSelectOptionsWrapper();
   handleCalculateCartStuffWrapper();
-  startLightningSale(context.getState().prodList, onUpdateSelectOptionsWrapper, () =>
-    doUpdatePricesInCart(cartDisp, context.getState().prodList, handleCalculateCartStuffWrapper)
+  startLightningSale(
+    context.getState().prodList,
+    onUpdateSelectOptionsWrapper,
+    () =>
+      doUpdatePricesInCart(
+        cartDisp,
+        context.getState().prodList,
+        handleCalculateCartStuffWrapper
+      )
   );
   startSuggestedPromotion(
     cartDisp,
@@ -114,22 +120,26 @@ function main() {
     context.getState().ui.lastSelected,
     onUpdateSelectOptionsWrapper,
     () =>
-      doUpdatePricesInCart(cartDisp, context.getState().prodList, handleCalculateCartStuffWrapper)
+      doUpdatePricesInCart(
+        cartDisp,
+        context.getState().prodList,
+        handleCalculateCartStuffWrapper
+      )
   );
 }
 let sum;
 
 function onUpdateSelectOptionsWrapper() {
-  const sel = context.getRef('sel');
+  const sel = context.getRef("sel");
   const prodList = context.getState().prodList;
   onUpdateSelectOptions(sel, prodList);
 }
 
 function handleCalculateCartStuffWrapper() {
-  const cartDisp = context.getRef('cartDisp');
+  const cartDisp = context.getRef("cartDisp");
   const prodList = context.getState().prodList;
-  const stockInfo = context.getRef('stockInfo');
-  
+  const stockInfo = context.getRef("stockInfo");
+
   const result = handleCalculateCartStuff(
     cartDisp,
     prodList,
@@ -154,7 +164,7 @@ function handleCalculateCartStuffWrapper() {
       ),
     () => updateStockInfo(stockInfo, prodList)
   );
-  
+
   // Context 상태 업데이트 (리액트에서는 setState로 관리 예정)
   context.updateCartTotals(result.totalAmount, result.bonusPoints, 0);
 }
@@ -353,9 +363,9 @@ function doUpdatePricesInCart() {
 main();
 
 // Context에서 DOM 참조 및 상태 가져오기
-const addBtn = context.getRef('addBtn');
-const sel = context.getRef('sel');
-const cartDisp = context.getRef('cartDisp');
+const addBtn = context.getRef("addBtn");
+const sel = context.getRef("sel");
+const cartDisp = context.getRef("cartDisp");
 const prodList = context.getState().prodList;
 
 setupAddToCartHandler(
