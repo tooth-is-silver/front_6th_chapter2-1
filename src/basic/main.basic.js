@@ -1,3 +1,9 @@
+import {
+  PRODUCT_IDS,
+  DISCOUNT_RATES,
+  BULK_ITEM_COUNT,
+} from "./constants/index.js";
+
 let prodList;
 let bonusPts = 0;
 let stockInfo;
@@ -6,29 +12,6 @@ let lastSel;
 let sel;
 let addBtn;
 let totalAmt = 0;
-
-const PRODUCT_IDS = {
-  KEYBOARD: "p1",
-  MOUSE: "p2",
-  MONITOR_ARM: "p3",
-  LAPTOP_POUCH: "p4",
-  SPEAKER: "p5",
-};
-
-const DISCOUNT_RATES = {
-  DEFAULT: 0.1,
-  KEYBOARD: 0.1,
-  MOUSE: 0.15,
-  MONITOR_ARM: 0.2,
-  LAPTOP_POUCH: 0.05,
-  SPEAKER: 0.25,
-  BULK_DISCOUNT: 0.25,
-  TUESDAY_DISCOUNT: 0.1,
-  LIGHTNING_SALE: 0.2,
-  SUGGESTED_DISCOUNT: 0.05,
-};
-
-const BULK_ITEM_COUNT = 10;
 
 let cartDisp;
 
