@@ -46,42 +46,19 @@ export function handleCalculateCartStuff(
     }
   }
 
-  // 대량구매 할인 우선 적용 (30개 이상 시 개별 할인 무시)
+  // 할인 계산
   const originalTotal = subTot;
-  let finalTotal = subTot;
+  const finalTotal = calculateFinalTotal(subTot, itemCnt, cartItemData);
 
-  if (itemCnt >= 30) {
-    // 30개 이상: 개별 할인 무시하고 전체 25% 할인만 적용
-    const bulkDiscount = calculateBulkDiscount(subTot, itemCnt);
-    finalTotal = subTot - bulkDiscount;
-  } else {
-    // 30개 미만: 개별 상품 할인 적용
-    let discountedTotal = subTot;
-    for (let i = 0; i < cartItems.length; i++) {
-      const itemElement = cartItems[i];
-      const productId = itemElement.id;
-      const product = prodList.find((p) => p.id === productId);
-
-      if (product) {
-        const qtyElem = itemElement.querySelector(".quantity-number");
-        const quantity = parseInt(qtyElem.textContent);
-        const itemTotal = product.val * quantity;
-        const discount = calculateProductDiscount(product, quantity);
-        discountedTotal -= itemTotal * discount;
-      }
-    }
-    finalTotal = discountedTotal;
-  }
-
-  // 화요일 할인
+  // 화요일 할인 적용
   const today = new Date();
   const isTuesday = today.getDay() === 2;
   const tuesdayDiscount = calculateTuesdayDiscount(finalTotal, isTuesday);
-  finalTotal -= tuesdayDiscount;
+  const finalTotalWithTuesday = finalTotal - tuesdayDiscount;
 
   // 포인트 계산
   const pointsData = calculatePoints(
-    finalTotal,
+    finalTotalWithTuesday,
     cartItemData,
     itemCnt,
     isTuesday
@@ -89,7 +66,7 @@ export function handleCalculateCartStuff(
 
   // UI 업데이트
   updateCartUI(
-    finalTotal,
+    finalTotalWithTuesday,
     itemCnt,
     originalTotal,
     itemDiscounts,
@@ -99,7 +76,19 @@ export function handleCalculateCartStuff(
   updateStockInfo();
 
   return {
-    totalAmount: finalTotal,
+    totalAmount: finalTotalWithTuesday,
     bonusPoints: pointsData.points,
   };
+}
+
+// 최종 총액 계산
+function calculateFinalTotal(subtotal, itemCount, cartItemData) {
+  if (itemCount >= 30) {
+    // 30개 이상: 대량구매 할인 (25%)
+    const bulkDiscount = calculateBulkDiscount(subtotal, itemCount);
+    return subtotal - bulkDiscount;
+  } else {
+    // 30개 미만: 개별 상품 할인 적용
+    return cartItemData.reduce((total, item) => total + item.total, 0);
+  }
 }

@@ -14,7 +14,7 @@ import {
   updateStockInfo,
   doUpdatePricesInCart,
 } from "./ui/cartRenderer.js";
-import { useCartContext, CartProvider } from "./context/CartContext.js";
+import { CartProvider } from "./context/CartContext.js";
 
 // Context 초기화 (리액트에서는 <CartProvider>로 감쌀 예정)
 const context = CartProvider({ prodList: productList });
@@ -81,7 +81,8 @@ function main() {
   context.setRef("stockInfo", stockInfo);
   context.setRef("cartDisp", cartDisp);
   rightColumn = createOrderSummaryPanel();
-  sum = rightColumn.querySelector("#cart-total");
+  const sum = rightColumn.querySelector("#cart-total");
+  context.setRef("sum", sum);
   manualToggle = createHelpToggleButton();
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -115,7 +116,6 @@ function main() {
       )
   );
   startSuggestedPromotion(
-    cartDisp,
     context.getState().prodList,
     context.getState().ui.lastSelected,
     onUpdateSelectOptionsWrapper,
@@ -127,7 +127,6 @@ function main() {
       )
   );
 }
-let sum;
 
 function onUpdateSelectOptionsWrapper() {
   const sel = context.getRef("sel");
@@ -160,7 +159,7 @@ function handleCalculateCartStuffWrapper() {
         pointsData,
         cartDisp,
         prodList,
-        sum
+        context.getRef("sum")
       ),
     () => updateStockInfo(stockInfo, prodList)
   );
