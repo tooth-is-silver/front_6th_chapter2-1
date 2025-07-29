@@ -204,16 +204,17 @@ function generateStockMessage(products) {
     .join("\n");
 }
 
+// 컴포넌트 import
 import {
-  createHeader,
-  createSelect,
-  createButton,
-  createStockInfo,
-  createCartDisp,
-  createRightColumn,
-  createManualToggle,
-  createManualOverlay,
-  createManualColumn,
+  createCartHeader,
+  createProductSelect,
+  createAddToCartButton,
+  createStockStatusDiv,
+  createCartItemsContainer,
+  createOrderSummaryPanel,
+  createHelpToggleButton,
+  createHelpOverlay,
+  createHelpPanel,
 } from "./components/CartComponents";
 
 function main() {
@@ -278,8 +279,8 @@ function main() {
     },
   ];
   root = document.getElementById("app");
-  header = createHeader();
-  sel = createSelect();
+  header = createCartHeader();
+  sel = createProductSelect();
   gridContainer = document.createElement("div");
   leftColumn = document.createElement("div");
   leftColumn["className"] =
@@ -289,8 +290,8 @@ function main() {
   sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addBtn = createButton();
-  stockInfo = createStockInfo();
+  addBtn = createAddToCartButton();
+  stockInfo = createStockStatusDiv();
   addBtn.id = "add-to-cart";
   stockInfo.id = "stock-status";
   stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
@@ -301,24 +302,24 @@ function main() {
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-  cartDisp = createCartDisp();
+  cartDisp = createCartItemsContainer();
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
-  rightColumn = createRightColumn();
+  rightColumn = createOrderSummaryPanel();
   sum = rightColumn.querySelector("#cart-total");
-  manualToggle = createManualToggle();
+  manualToggle = createHelpToggleButton();
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   };
-  manualOverlay = createManualOverlay();
+  manualOverlay = createHelpOverlay();
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add("hidden");
       manualColumn.classList.add("translate-x-full");
     }
   };
-  manualColumn = createManualColumn();
+  manualColumn = createHelpPanel();
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);

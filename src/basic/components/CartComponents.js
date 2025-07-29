@@ -1,4 +1,4 @@
-export function createHeader() {
+export function createCartHeader() {
   const header = document.createElement("div");
   header.className = "mb-8";
   header.innerHTML = `
@@ -9,28 +9,28 @@ export function createHeader() {
   return header;
 }
 
-export function createSelect() {
+export function createProductSelect() {
   const sel = document.createElement("select");
   sel.id = "product-select";
   return sel;
 }
 
-export function createButton() {
+export function createAddToCartButton() {
   const btn = document.createElement("button");
   return btn;
 }
 
-export function createStockInfo() {
+export function createStockStatusDiv() {
   const stockInfo = document.createElement("div");
   return stockInfo;
 }
 
-export function createCartDisp() {
+export function createCartItemsContainer() {
   const cartDisp = document.createElement("div");
   return cartDisp;
 }
 
-export function createRightColumn() {
+export function createOrderSummaryPanel() {
   const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
@@ -65,7 +65,7 @@ export function createRightColumn() {
   return rightColumn;
 }
 
-export function createManualToggle() {
+export function createHelpToggleButton() {
   const manualToggle = document.createElement("button");
   manualToggle.className =
     "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
@@ -77,14 +77,14 @@ export function createManualToggle() {
   return manualToggle;
 }
 
-export function createManualOverlay() {
+export function createHelpOverlay() {
   const manualOverlay = document.createElement("div");
   manualOverlay.className =
     "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
   return manualOverlay;
 }
 
-export function createManualColumn() {
+export function createHelpPanel() {
   const manualColumn = document.createElement("div");
   manualColumn.className =
     "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
