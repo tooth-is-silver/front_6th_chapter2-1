@@ -1,4 +1,5 @@
 import { DISCOUNT_RATES } from "../constants/index.js";
+import { useCartContext } from "../context/CartContext.js";
 
 export function startLightningSale(
   prodList,
@@ -24,18 +25,24 @@ export function startLightningSale(
 export function startSuggestedPromotion(
   cartDisp,
   prodList,
-  lastSel,
+  lastSel, // 하위 호환성을 위해 유지, 내부에서 Context 사용
   onUpdateSelectOptions,
   doUpdatePricesInCart
 ) {
+  const context = useCartContext();
+  
   setTimeout(function () {
     setInterval(function () {
       if (cartDisp.children.length === 0) {
       }
-      if (lastSel) {
+      
+      // Context에서 lastSelected 가져오기 (리액트에서는 useContext로 자동 처리)
+      const currentLastSel = context.getState().ui.lastSelected;
+      
+      if (currentLastSel) {
         const suggest = prodList.find(
           (product) =>
-            product.id !== lastSel &&
+            product.id !== currentLastSel &&
             product.q > 0 &&
             !product.suggestSale
         );

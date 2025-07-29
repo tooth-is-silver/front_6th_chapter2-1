@@ -1,3 +1,5 @@
+import { useCartContext } from "../context/CartContext.js";
+
 export function setupAddToCartHandler(
   addBtn,
   sel,
@@ -5,12 +7,17 @@ export function setupAddToCartHandler(
   prodList,
   handleCalculateCartStuffWrapper
 ) {
+  const context = useCartContext();
   addBtn.addEventListener("click", function () {
     let selItem = sel.value;
     const hasItem = prodList.some(product => product.id === selItem);
     if (!selItem || !hasItem) {
       return;
     }
+    
+    // Context에 마지막 선택 상품 업데이트 (리액트에서는 setState로 처리 예정)
+    context.setLastSelected(selItem);
+    
     const itemToAdd = prodList.find(product => product.id === selItem);
     if (itemToAdd && itemToAdd.q > 0) {
       let item = document.getElementById(itemToAdd["id"]);

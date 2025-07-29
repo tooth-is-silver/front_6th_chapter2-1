@@ -14,17 +14,10 @@ import {
   updateStockInfo,
   doUpdatePricesInCart,
 } from "./ui/cartRenderer.js";
+import { useCartContext, CartProvider } from "./context/CartContext.js";
 
-let prodList;
-let bonusPts = 0;
-let stockInfo;
-let itemCnt;
-let lastSel;
-let sel;
-let addBtn;
-let totalAmt = 0;
-
-let cartDisp;
+// Context 초기화 (리액트에서는 <CartProvider>로 감쌀 예정)
+const context = CartProvider({ prodList: productList });
 
 // 컴포넌트 import
 import {
@@ -50,13 +43,14 @@ function main() {
   let manualOverlay;
   let manualColumn;
   let lightningDelay;
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
-  prodList = productList;
+  
+  // Context 상태 초기화
+  context.updateCartTotals(0, 0, 0);
+  context.setLastSelected(null);
+  
   root = document.getElementById("app");
   header = createCartHeader();
-  sel = createProductSelect();
+  const sel = createProductSelect();
   gridContainer = document.createElement("div");
   leftColumn = document.createElement("div");
   leftColumn["className"] =
@@ -66,8 +60,8 @@ function main() {
   sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addBtn = createAddToCartButton();
-  stockInfo = createStockStatusDiv();
+  const addBtn = createAddToCartButton();
+  const stockInfo = createStockStatusDiv();
   addBtn.id = "add-to-cart";
   stockInfo.id = "stock-status";
   stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
@@ -78,9 +72,15 @@ function main() {
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-  cartDisp = createCartItemsContainer();
+  const cartDisp = createCartItemsContainer();
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
+  
+  // DOM 참조를 Context에 저장 (리액트에서는 useRef로 관리 예정)
+  context.setRef('sel', sel);
+  context.setRef('addBtn', addBtn);
+  context.setRef('stockInfo', stockInfo);
+  context.setRef('cartDisp', cartDisp);
   rightColumn = createOrderSummaryPanel();
   sum = rightColumn.querySelector("#cart-total");
   manualToggle = createHelpToggleButton();
@@ -105,25 +105,31 @@ function main() {
   root.appendChild(manualOverlay);
   onUpdateSelectOptionsWrapper();
   handleCalculateCartStuffWrapper();
-  startLightningSale(prodList, onUpdateSelectOptionsWrapper, () =>
-    doUpdatePricesInCart(cartDisp, prodList, handleCalculateCartStuffWrapper)
+  startLightningSale(context.getState().prodList, onUpdateSelectOptionsWrapper, () =>
+    doUpdatePricesInCart(cartDisp, context.getState().prodList, handleCalculateCartStuffWrapper)
   );
   startSuggestedPromotion(
     cartDisp,
-    prodList,
-    lastSel,
+    context.getState().prodList,
+    context.getState().ui.lastSelected,
     onUpdateSelectOptionsWrapper,
     () =>
-      doUpdatePricesInCart(cartDisp, prodList, handleCalculateCartStuffWrapper)
+      doUpdatePricesInCart(cartDisp, context.getState().prodList, handleCalculateCartStuffWrapper)
   );
 }
 let sum;
 
 function onUpdateSelectOptionsWrapper() {
+  const sel = context.getRef('sel');
+  const prodList = context.getState().prodList;
   onUpdateSelectOptions(sel, prodList);
 }
 
 function handleCalculateCartStuffWrapper() {
+  const cartDisp = context.getRef('cartDisp');
+  const prodList = context.getState().prodList;
+  const stockInfo = context.getRef('stockInfo');
+  
   const result = handleCalculateCartStuff(
     cartDisp,
     prodList,
@@ -148,8 +154,9 @@ function handleCalculateCartStuffWrapper() {
       ),
     () => updateStockInfo(stockInfo, prodList)
   );
-  totalAmt = result.totalAmount;
-  bonusPts = result.bonusPoints;
+  
+  // Context 상태 업데이트 (리액트에서는 setState로 관리 예정)
+  context.updateCartTotals(result.totalAmount, result.bonusPoints, 0);
 }
 
 // UI 업데이트
@@ -344,6 +351,13 @@ function doUpdatePricesInCart() {
 }
 
 main();
+
+// Context에서 DOM 참조 및 상태 가져오기
+const addBtn = context.getRef('addBtn');
+const sel = context.getRef('sel');
+const cartDisp = context.getRef('cartDisp');
+const prodList = context.getState().prodList;
+
 setupAddToCartHandler(
   addBtn,
   sel,
