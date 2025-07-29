@@ -26,21 +26,24 @@ export function updateCartUI(
   if (originalTotal > 0) {
     // 상품별 요약 추가
     const cartItems = cartDisp.children;
-    for (let i = 0; i < cartItems.length; i++) {
-      const itemElement = cartItems[i];
-      const productId = itemElement.id;
-      const product = prodList.find((p) => p.id === productId);
-      const qtyElem = itemElement.querySelector(".quantity-number");
-      const quantity = parseInt(qtyElem.textContent);
-      const itemTotal = product.val * quantity;
+    const cartItemsHTML = Array.from(cartItems)
+      .map((itemElement) => {
+        const productId = itemElement.id;
+        const product = prodList.find((p) => p.id === productId);
+        const qtyElem = itemElement.querySelector(".quantity-number");
+        const quantity = parseInt(qtyElem.textContent);
+        const itemTotal = product.val * quantity;
 
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${product.name} x ${quantity}</span>
-          <span>₩${itemTotal.toLocaleString()}</span>
-        </div>
-      `;
-    }
+        return `
+          <div class="flex justify-between text-xs tracking-wide text-gray-400">
+            <span>${product.name} x ${quantity}</span>
+            <span>₩${itemTotal.toLocaleString()}</span>
+          </div>
+        `;
+      })
+      .join('');
+    
+    summaryDetails.innerHTML += cartItemsHTML;
 
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
@@ -148,8 +151,7 @@ export function onUpdateSelectOptions(sel, prodList) {
   sel.innerHTML = "";
   const totalStock = calculateTotalStock(prodList);
 
-  for (let i = 0; i < prodList.length; i++) {
-    const item = prodList[i];
+  prodList.forEach((item) => {
     const opt = document.createElement("option");
     const optionData = createProductOptionText(item);
 
@@ -161,7 +163,7 @@ export function onUpdateSelectOptions(sel, prodList) {
     }
 
     sel.appendChild(opt);
-  }
+  });
 
   if (totalStock < 50) {
     sel.style.borderColor = "orange";
@@ -182,8 +184,7 @@ export function doUpdatePricesInCart(
 ) {
   const cartItems = cartDisp.children;
 
-  for (let i = 0; i < cartItems.length; i++) {
-    const itemElement = cartItems[i];
+  Array.from(cartItems).forEach((itemElement) => {
     const productId = itemElement.id;
     const product = prodList.find((p) => p.id === productId);
 
@@ -220,7 +221,7 @@ export function doUpdatePricesInCart(
         nameDiv.textContent = product.name;
       }
     }
-  }
+  });
 
   handleCalculateCartStuffWrapper();
 }

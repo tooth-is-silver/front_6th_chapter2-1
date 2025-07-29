@@ -7,23 +7,11 @@ export function setupAddToCartHandler(
 ) {
   addBtn.addEventListener("click", function () {
     let selItem = sel.value;
-    let hasItem = false;
-    for (let idx = 0; idx < prodList.length; idx++) {
-      if (prodList[idx].id === selItem) {
-        hasItem = true;
-        break;
-      }
-    }
+    const hasItem = prodList.some(product => product.id === selItem);
     if (!selItem || !hasItem) {
       return;
     }
-    let itemToAdd = null;
-    for (let j = 0; j < prodList.length; j++) {
-      if (prodList[j].id === selItem) {
-        itemToAdd = prodList[j];
-        break;
-      }
-    }
+    const itemToAdd = prodList.find(product => product.id === selItem);
     if (itemToAdd && itemToAdd.q > 0) {
       let item = document.getElementById(itemToAdd["id"]);
       if (item) {
@@ -124,13 +112,7 @@ export function setupCartItemHandler(
     ) {
       let prodId = tgt.dataset.productId;
       let itemElem = document.getElementById(prodId);
-      let prod = null;
-      for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-        if (prodList[prdIdx].id === prodId) {
-          prod = prodList[prdIdx];
-          break;
-        }
-      }
+      const prod = prodList.find(product => product.id === prodId);
       if (tgt.classList.contains("quantity-change")) {
         let qtyChange = parseInt(tgt.dataset.change);
         let qtyElem = itemElem.querySelector(".quantity-number");

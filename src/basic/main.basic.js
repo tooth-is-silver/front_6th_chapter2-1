@@ -103,10 +103,6 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
   onUpdateSelectOptionsWrapper();
   handleCalculateCartStuffWrapper();
   startLightningSale(prodList, onUpdateSelectOptionsWrapper, () =>
@@ -176,21 +172,24 @@ function updateCartUI(
   if (originalTotal > 0) {
     // 상품별 요약 추가
     const cartItems = cartDisp.children;
-    for (let i = 0; i < cartItems.length; i++) {
-      const itemElement = cartItems[i];
-      const productId = itemElement.id;
-      const product = prodList.find((p) => p.id === productId);
-      const qtyElem = itemElement.querySelector(".quantity-number");
-      const quantity = parseInt(qtyElem.textContent);
-      const itemTotal = product.val * quantity;
+    const cartItemsHTML = Array.from(cartItems)
+      .map((itemElement) => {
+        const productId = itemElement.id;
+        const product = prodList.find((p) => p.id === productId);
+        const qtyElem = itemElement.querySelector(".quantity-number");
+        const quantity = parseInt(qtyElem.textContent);
+        const itemTotal = product.val * quantity;
 
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${product.name} x ${quantity}</span>
-          <span>₩${itemTotal.toLocaleString()}</span>
-        </div>
-      `;
-    }
+        return `
+          <div class="flex justify-between text-xs tracking-wide text-gray-400">
+            <span>${product.name} x ${quantity}</span>
+            <span>₩${itemTotal.toLocaleString()}</span>
+          </div>
+        `;
+      })
+      .join("");
+
+    summaryDetails.innerHTML += cartItemsHTML;
 
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
@@ -302,8 +301,7 @@ function updateStockInfo() {
 function doUpdatePricesInCart() {
   const cartItems = cartDisp.children;
 
-  for (let i = 0; i < cartItems.length; i++) {
-    const itemElement = cartItems[i];
+  Array.from(cartItems).forEach((itemElement) => {
     const productId = itemElement.id;
     const product = prodList.find((p) => p.id === productId);
 
@@ -340,7 +338,7 @@ function doUpdatePricesInCart() {
         nameDiv.textContent = product.name;
       }
     }
-  }
+  });
 
   handleCalculateCartStuffWrapper();
 }

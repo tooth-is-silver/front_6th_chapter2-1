@@ -33,17 +33,12 @@ export function startSuggestedPromotion(
       if (cartDisp.children.length === 0) {
       }
       if (lastSel) {
-        let suggest = null;
-        for (let k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
-                break;
-              }
-            }
-          }
-        }
+        const suggest = prodList.find(
+          (product) =>
+            product.id !== lastSel &&
+            product.q > 0 &&
+            !product.suggestSale
+        );
         if (suggest) {
           alert(
             "💝 " +
