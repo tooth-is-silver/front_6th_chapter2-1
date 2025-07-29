@@ -1,169 +1,19 @@
-import { productList } from "./data/products.js";
-import { handleCalculateCartStuff } from "./core/cart.js";
 import {
-  setupAddToCartHandler,
-  setupCartItemHandler,
-} from "./handlers/cartHandlers.js";
-import {
-  startLightningSale,
-  startSuggestedPromotion,
-} from "./services/promotions.js";
-import {
-  updateCartUI,
-  onUpdateSelectOptions,
-  updateStockInfo,
-  doUpdatePricesInCart,
-} from "./ui/cartRenderer.js";
+  calculateTotalStock,
+  createProductOptionText,
+  generateStockMessage,
+} from "../data/products.js";
 
-let prodList;
-let bonusPts = 0;
-let stockInfo;
-let itemCnt;
-let lastSel;
-let sel;
-let addBtn;
-let totalAmt = 0;
-
-let cartDisp;
-
-// 컴포넌트 import
-import {
-  createCartHeader,
-  createProductSelect,
-  createAddToCartButton,
-  createStockStatusDiv,
-  createCartItemsContainer,
-  createOrderSummaryPanel,
-  createHelpToggleButton,
-  createHelpOverlay,
-  createHelpPanel,
-} from "./components/CartComponents";
-
-function main() {
-  let root;
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let selectorContainer;
-  let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
-  let lightningDelay;
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
-  prodList = productList;
-  root = document.getElementById("app");
-  header = createCartHeader();
-  sel = createProductSelect();
-  gridContainer = document.createElement("div");
-  leftColumn = document.createElement("div");
-  leftColumn["className"] =
-    "bg-white border border-gray-200 p-8 overflow-y-auto";
-  selectorContainer = document.createElement("div");
-  selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-  gridContainer.className =
-    "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addBtn = createAddToCartButton();
-  stockInfo = createStockStatusDiv();
-  addBtn.id = "add-to-cart";
-  stockInfo.id = "stock-status";
-  stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addBtn.innerHTML = "Add to Cart";
-  addBtn.className =
-    "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-  selectorContainer.appendChild(sel);
-  selectorContainer.appendChild(addBtn);
-  selectorContainer.appendChild(stockInfo);
-  leftColumn.appendChild(selectorContainer);
-  cartDisp = createCartItemsContainer();
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = "cart-items";
-  rightColumn = createOrderSummaryPanel();
-  sum = rightColumn.querySelector("#cart-total");
-  manualToggle = createHelpToggleButton();
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle("hidden");
-    manualColumn.classList.toggle("translate-x-full");
-  };
-  manualOverlay = createHelpOverlay();
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add("hidden");
-      manualColumn.classList.add("translate-x-full");
-    }
-  };
-  manualColumn = createHelpPanel();
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
-  root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
-  onUpdateSelectOptionsWrapper();
-  handleCalculateCartStuffWrapper();
-  startLightningSale(prodList, onUpdateSelectOptionsWrapper, () =>
-    doUpdatePricesInCart(cartDisp, prodList, handleCalculateCartStuffWrapper)
-  );
-  startSuggestedPromotion(
-    cartDisp,
-    prodList,
-    lastSel,
-    onUpdateSelectOptionsWrapper,
-    () =>
-      doUpdatePricesInCart(cartDisp, prodList, handleCalculateCartStuffWrapper)
-  );
-}
-let sum;
-
-function onUpdateSelectOptionsWrapper() {
-  onUpdateSelectOptions(sel, prodList);
-}
-
-function handleCalculateCartStuffWrapper() {
-  const result = handleCalculateCartStuff(
-    cartDisp,
-    prodList,
-    (
-      finalTotal,
-      itemCnt,
-      originalTotal,
-      itemDiscounts,
-      isTuesday,
-      pointsData
-    ) =>
-      updateCartUI(
-        finalTotal,
-        itemCnt,
-        originalTotal,
-        itemDiscounts,
-        isTuesday,
-        pointsData,
-        cartDisp,
-        prodList,
-        sum
-      ),
-    () => updateStockInfo(stockInfo, prodList)
-  );
-  totalAmt = result.totalAmount;
-  bonusPts = result.bonusPoints;
-}
-
-// UI 업데이트
-function updateCartUI(
+export function updateCartUI(
   finalTotal,
   itemCnt,
   originalTotal,
   itemDiscounts,
   isTuesday,
-  pointsData
+  pointsData,
+  cartDisp,
+  prodList,
+  sum
 ) {
   // 아이템 카운트
   document.getElementById("item-count").textContent =
@@ -294,12 +144,42 @@ function updateCartUI(
   }
 }
 
-function updateStockInfo() {
+export function onUpdateSelectOptions(sel, prodList) {
+  sel.innerHTML = "";
+  const totalStock = calculateTotalStock(prodList);
+
+  for (let i = 0; i < prodList.length; i++) {
+    const item = prodList[i];
+    const opt = document.createElement("option");
+    const optionData = createProductOptionText(item);
+
+    opt.value = item.id;
+    opt.textContent = optionData.text;
+    opt.disabled = optionData.disabled;
+    if (optionData.className) {
+      opt.className = optionData.className;
+    }
+
+    sel.appendChild(opt);
+  }
+
+  if (totalStock < 50) {
+    sel.style.borderColor = "orange";
+  } else {
+    sel.style.borderColor = "";
+  }
+}
+
+export function updateStockInfo(stockInfo, prodList) {
   const stockMessage = generateStockMessage(prodList);
   stockInfo.textContent = stockMessage;
 }
 
-function doUpdatePricesInCart() {
+export function doUpdatePricesInCart(
+  cartDisp,
+  prodList,
+  handleCalculateCartStuffWrapper
+) {
   const cartItems = cartDisp.children;
 
   for (let i = 0; i < cartItems.length; i++) {
@@ -344,18 +224,3 @@ function doUpdatePricesInCart() {
 
   handleCalculateCartStuffWrapper();
 }
-
-main();
-setupAddToCartHandler(
-  addBtn,
-  sel,
-  cartDisp,
-  prodList,
-  handleCalculateCartStuffWrapper
-);
-setupCartItemHandler(
-  cartDisp,
-  prodList,
-  handleCalculateCartStuffWrapper,
-  onUpdateSelectOptionsWrapper
-);
