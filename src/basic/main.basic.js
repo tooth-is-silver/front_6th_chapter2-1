@@ -19,18 +19,10 @@ import { CartProvider } from "./context/CartContext.js";
 // Context 초기화 (리액트에서는 <CartProvider>로 감쌀 예정)
 const context = CartProvider({ prodList: productList });
 
-// 컴포넌트 import
-import {
-  createCartHeader,
-  createProductSelect,
-  createAddToCartButton,
-  createStockStatusDiv,
-  createCartItemsContainer,
-  createOrderSummaryPanel,
-  createHelpToggleButton,
-  createHelpOverlay,
-  createHelpPanel,
-} from "./components/CartComponents";
+import { createCartHeader } from "./components/render/cartHeader.js";
+import { createHelpPanel } from "./components/render/helpPanel.js";
+import { createHelpToggleButton } from "./components/render/helpToggleButton.js";
+import { createOrderSummaryPanel } from "./components/render/orderSummaryPanel.js";
 
 function main() {
   let root;
@@ -49,18 +41,18 @@ function main() {
 
   root = document.getElementById("app");
   header = createCartHeader();
-  const sel = createProductSelect();
+  const sel = document.createElement("select");
+  sel.id = "product-select";
   gridContainer = document.createElement("div");
   leftColumn = document.createElement("div");
-  leftColumn["className"] =
-    "bg-white border border-gray-200 p-8 overflow-y-auto";
+  leftColumn.className = "bg-white border border-gray-200 p-8 overflow-y-auto";
   selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
   sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  const addBtn = createAddToCartButton();
-  const stockInfo = createStockStatusDiv();
+  const addBtn = document.createElement("button");
+  const stockInfo = document.createElement("div");
   addBtn.id = "add-to-cart";
   stockInfo.id = "stock-status";
   stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
@@ -71,7 +63,7 @@ function main() {
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-  const cartDisp = createCartItemsContainer();
+  const cartDisp = document.createElement("div");
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
 
@@ -88,7 +80,9 @@ function main() {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   };
-  manualOverlay = createHelpOverlay();
+  manualOverlay = document.createElement("div");
+  manualOverlay.className =
+    "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add("hidden");
