@@ -8,7 +8,6 @@ export function useDiscounts() {
   const [suggestedProducts, setSuggestedProducts] = useState<Set<string>>(
     new Set()
   );
-  const [rate, setRate] = useState(Number(DISCOUNT_RATES.DEFAULT));
 
   const calculateIndividualDiscount = (
     product: Product,
@@ -18,26 +17,32 @@ export function useDiscounts() {
       return { type: "individual", rate: 0, applicable: false, amount: 0 };
     }
 
+    let individualRate = Number(DISCOUNT_RATES.DEFAULT);
     switch (product.id) {
       case "p1":
-        setRate(DISCOUNT_RATES.KEYBOARD);
+        individualRate = DISCOUNT_RATES.KEYBOARD;
         break;
       case "p2":
-        setRate(DISCOUNT_RATES.MOUSE);
+        individualRate = DISCOUNT_RATES.MOUSE;
         break;
       case "p3":
-        setRate(DISCOUNT_RATES.MONITOR_ARM);
+        individualRate = DISCOUNT_RATES.MONITOR_ARM;
         break;
       case "p4":
-        setRate(DISCOUNT_RATES.LAPTOP_POUCH);
+        individualRate = DISCOUNT_RATES.LAPTOP_POUCH;
         break;
       case "p5":
-        setRate(DISCOUNT_RATES.SPEAKER);
+        individualRate = DISCOUNT_RATES.SPEAKER;
         break;
     }
 
-    const amount = product.value * quantity * rate;
-    return { type: "individual", rate, applicable: true, amount };
+    const amount = product.value * quantity * individualRate;
+    return {
+      type: "individual",
+      rate: individualRate,
+      applicable: true,
+      amount,
+    };
   };
 
   const calculateBulkDiscount = (
@@ -48,9 +53,9 @@ export function useDiscounts() {
       return { type: "bulk", rate: 0, applicable: false, amount: 0 };
     }
 
-    const rate = DISCOUNT_RATES.BULK_DISCOUNT;
-    const amount = totalAmount * rate;
-    return { type: "bulk", rate, applicable: true, amount };
+    const bulkRate = DISCOUNT_RATES.BULK_DISCOUNT;
+    const amount = totalAmount * bulkRate;
+    return { type: "bulk", rate: bulkRate, applicable: true, amount };
   };
 
   const calculateTuesdayDiscount = (amount: number): DiscountInfo => {
@@ -59,9 +64,14 @@ export function useDiscounts() {
       return { type: "tuesday", rate: 0, applicable: false, amount: 0 };
     }
 
-    const rate = DISCOUNT_RATES.TUESDAY_DISCOUNT;
-    const discountAmount = amount * rate;
-    return { type: "tuesday", rate, applicable: true, amount: discountAmount };
+    const tuesdayRate = DISCOUNT_RATES.TUESDAY_DISCOUNT;
+    const discountAmount = amount * tuesdayRate;
+    return {
+      type: "tuesday",
+      rate: tuesdayRate,
+      applicable: true,
+      amount: discountAmount,
+    };
   };
 
   const calculateLightningDiscount = (
@@ -72,9 +82,9 @@ export function useDiscounts() {
       return { type: "lightning", rate: 0, applicable: false, amount: 0 };
     }
 
-    const rate = DISCOUNT_RATES.LIGHTNING_SALE;
-    const amount = product.originalValue * quantity * rate;
-    return { type: "lightning", rate, applicable: true, amount };
+    const lightningRate = DISCOUNT_RATES.LIGHTNING_SALE;
+    const amount = product.originalValue * quantity * lightningRate;
+    return { type: "lightning", rate: lightningRate, applicable: true, amount };
   };
 
   const calculateSuggestedDiscount = (
@@ -85,9 +95,9 @@ export function useDiscounts() {
       return { type: "suggested", rate: 0, applicable: false, amount: 0 };
     }
 
-    const rate = DISCOUNT_RATES.SUGGESTED_DISCOUNT;
-    const amount = product.originalValue * quantity * rate;
-    return { type: "suggested", rate, applicable: true, amount };
+    const suggestedRate = DISCOUNT_RATES.SUGGESTED_DISCOUNT;
+    const amount = product.originalValue * quantity * suggestedRate;
+    return { type: "suggested", rate: suggestedRate, applicable: true, amount };
   };
 
   return {
