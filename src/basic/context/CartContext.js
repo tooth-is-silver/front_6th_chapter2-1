@@ -18,10 +18,11 @@ class CartContext {
 
     // DOM 참조 (리액트에서는 useRef로 관리될 예정)
     this.refs = {
-      stockInfo: null,
-      sel: null,
-      addBtn: null,
-      cartDisp: null,
+      stockStatusDisplay: null,
+      productSelectElement: null,
+      addToCartButton: null,
+      cartItemsContainer: null,
+      cartTotalElement: null,
     };
 
     // 구독자들 (리액트에서는 자동으로 리렌더링됨)

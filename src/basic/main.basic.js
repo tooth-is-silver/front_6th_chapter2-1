@@ -59,20 +59,20 @@ const { handleCalculateCartStuffWrapper, onUpdateSelectOptionsWrapper } =
   handlers;
 
 // Context에서 DOM 참조 및 상태 가져오기
-const addBtn = context.getRef("addBtn");
-const sel = context.getRef("sel");
-const cartDisp = context.getRef("cartDisp");
+const addToCartButton = context.getRef("addToCartButton");
+const productSelectElement = context.getRef("productSelectElement");
+const cartItemsContainer = context.getRef("cartItemsContainer");
 const prodList = context.getState().prodList;
 
 setupAddToCartHandler(
-  addBtn,
-  sel,
-  cartDisp,
+  addToCartButton,
+  productSelectElement,
+  cartItemsContainer,
   prodList,
   handleCalculateCartStuffWrapper
 );
 setupCartItemHandler(
-  cartDisp,
+  cartItemsContainer,
   prodList,
   handleCalculateCartStuffWrapper,
   onUpdateSelectOptionsWrapper

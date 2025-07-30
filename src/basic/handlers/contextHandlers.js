@@ -8,18 +8,18 @@ import {
 
 export function createContextHandlers(context) {
   function onUpdateSelectOptionsWrapper() {
-    const sel = context.getRef("sel");
+    const productSelectElement = context.getRef("productSelectElement");
     const prodList = context.getState().prodList;
-    onUpdateSelectOptions(sel, prodList);
+    onUpdateSelectOptions(productSelectElement, prodList);
   }
 
   function handleCalculateCartStuffWrapper() {
-    const cartDisp = context.getRef("cartDisp");
+    const cartItemsContainer = context.getRef("cartItemsContainer");
     const prodList = context.getState().prodList;
-    const stockInfo = context.getRef("stockInfo");
+    const stockStatusDisplay = context.getRef("stockStatusDisplay");
 
     const result = handleCalculateCartStuff(
-      cartDisp,
+      cartItemsContainer,
       prodList,
       (
         finalTotal,
@@ -36,11 +36,11 @@ export function createContextHandlers(context) {
           itemDiscounts,
           isTuesday,
           pointsData,
-          cartDisp,
+          cartItemsContainer,
           prodList,
-          context.getRef("sum")
+          context.getRef("cartTotalElement")
         ),
-      () => updateStockInfo(stockInfo, prodList)
+      () => updateStockInfo(stockStatusDisplay, prodList)
     );
 
     // Context 상태 업데이트 (리액트에서는 setState로 관리 예정)
@@ -50,7 +50,7 @@ export function createContextHandlers(context) {
   function createUpdatePricesHandler() {
     return () =>
       doUpdatePricesInCart(
-        context.getRef("cartDisp"),
+        context.getRef("cartItemsContainer"),
         context.getState().prodList,
         handleCalculateCartStuffWrapper
       );

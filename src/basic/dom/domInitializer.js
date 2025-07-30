@@ -14,17 +14,18 @@ export function initializeDOM(context) {
 
   // 상품 선택 및 카트 조작 요소
   const selectorContainer = createSelectorContainer();
-  const { sel, addBtn, stockInfo } = createCartControls();
-  selectorContainer.appendChild(sel);
-  selectorContainer.appendChild(addBtn);
-  selectorContainer.appendChild(stockInfo);
+  const { productSelectElement, addToCartButton, stockStatusDisplay } =
+    createCartControls();
+  selectorContainer.appendChild(productSelectElement);
+  selectorContainer.appendChild(addToCartButton);
+  selectorContainer.appendChild(stockStatusDisplay);
 
   // 카트 디스플레이 요소
-  const cartDisp = createCartDisplay();
+  const cartItemsContainer = createCartDisplay();
 
   // 왼쪽 열에 요소 추가
   leftColumn.appendChild(selectorContainer);
-  leftColumn.appendChild(cartDisp);
+  leftColumn.appendChild(cartItemsContainer);
 
   // 오른쪽 열에 요약 패널 추가
   const manualToggle = createHelpToggleButton();
@@ -42,14 +43,14 @@ export function initializeDOM(context) {
   root.appendChild(manualOverlay);
 
   // 카트 토탈 금액 ui 참조
-  const sum = rightColumn.querySelector("#cart-total");
+  const cartTotalElement = rightColumn.querySelector("#cart-total");
 
   // dom 요소 참조를 Context에 저장
-  context.setRef("sel", sel);
-  context.setRef("addBtn", addBtn);
-  context.setRef("stockInfo", stockInfo);
-  context.setRef("cartDisp", cartDisp);
-  context.setRef("sum", sum);
+  context.setRef("productSelectElement", productSelectElement);
+  context.setRef("addToCartButton", addToCartButton);
+  context.setRef("stockStatusDisplay", stockStatusDisplay);
+  context.setRef("cartItemsContainer", cartItemsContainer);
+  context.setRef("cartTotalElement", cartTotalElement);
 
   return {
     root,
@@ -60,11 +61,11 @@ export function initializeDOM(context) {
     manualToggle,
     manualOverlay,
     manualColumn,
-    sel,
-    addBtn,
-    stockInfo,
-    cartDisp,
-    sum,
+    productSelectElement,
+    addToCartButton,
+    stockStatusDisplay,
+    cartItemsContainer,
+    cartTotalElement,
   };
 }
 
@@ -88,27 +89,29 @@ function createSelectorContainer() {
 }
 
 function createCartControls() {
-  const sel = document.createElement("select");
-  sel.id = "product-select";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  const productSelectElement = document.createElement("select");
+  productSelectElement.id = "product-select";
+  productSelectElement.className =
+    "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
 
-  const addBtn = document.createElement("button");
-  addBtn.id = "add-to-cart";
-  addBtn.innerHTML = "Add to Cart";
-  addBtn.className =
+  const addToCartButton = document.createElement("button");
+  addToCartButton.id = "add-to-cart";
+  addToCartButton.innerHTML = "Add to Cart";
+  addToCartButton.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
 
-  const stockInfo = document.createElement("div");
-  stockInfo.id = "stock-status";
-  stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+  const stockStatusDisplay = document.createElement("div");
+  stockStatusDisplay.id = "stock-status";
+  stockStatusDisplay.className =
+    "text-xs text-red-500 mt-3 whitespace-pre-line";
 
-  return { sel, addBtn, stockInfo };
+  return { productSelectElement, addToCartButton, stockStatusDisplay };
 }
 
 function createCartDisplay() {
-  const cartDisp = document.createElement("div");
-  cartDisp.id = "cart-items";
-  return cartDisp;
+  const cartItemsContainer = document.createElement("div");
+  cartItemsContainer.id = "cart-items";
+  return cartItemsContainer;
 }
 
 function createHelpElements() {
