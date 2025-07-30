@@ -26,7 +26,7 @@ export function handleCalculateCartStuff(
     if (product) {
       const qtyElem = itemElement.querySelector(".quantity-number");
       const quantity = parseInt(qtyElem.textContent);
-      const itemTotal = product.val * quantity;
+      const itemTotal = product.value * quantity;
       const discount = calculateProductDiscount(product, quantity);
 
       subTot += itemTotal;
@@ -40,7 +40,7 @@ export function handleCalculateCartStuff(
         id: product.id,
         name: product.name,
         quantity: quantity,
-        price: product.val,
+        price: product.value,
         total: itemTotal * (1 - discount),
       });
     }

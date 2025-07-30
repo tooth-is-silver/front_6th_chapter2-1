@@ -26,9 +26,9 @@ export function getProductDisplayName(product) {
 export function getProductPriceHTML(product) {
   if (product.onSale || product.suggestSale) {
     const colorClass = getDiscountColorClass(product);
-    return `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${colorClass}">₩${product.val.toLocaleString()}</span>`;
+    return `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${colorClass}">₩${product.value.toLocaleString()}</span>`;
   }
-  return `₩${product.val.toLocaleString()}`;
+  return `₩${product.value.toLocaleString()}`;
 }
 
 /**

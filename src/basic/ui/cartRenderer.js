@@ -41,7 +41,7 @@ export function updateCartUI(
         const product = prodList.find((p) => p.id === productId);
         const qtyElem = itemElement.querySelector(".quantity-number");
         const quantity = parseInt(qtyElem.textContent);
-        const itemTotal = product.val * quantity;
+        const itemTotal = product.value * quantity;
 
         return CartItemSummaryTemplate({ product, quantity, itemTotal });
       })
