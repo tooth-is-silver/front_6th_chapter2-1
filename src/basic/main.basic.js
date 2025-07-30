@@ -1,168 +1,62 @@
 import { productList } from "./data/products.js";
-import { handleCalculateCartStuff } from "./core/cart.js";
 import {
   setupAddToCartHandler,
   setupCartItemHandler,
 } from "./handlers/cartHandlers.js";
+import { createContextHandlers } from "./handlers/contextHandlers.js";
+import { setupHelpPanelHandlers } from "./handlers/helpPanelHandlers.js";
 import {
   startLightningSale,
   startSuggestedPromotion,
 } from "./services/promotions.js";
-import {
-  updateCartUI,
-  onUpdateSelectOptions,
-  updateStockInfo,
-  doUpdatePricesInCart,
-} from "./ui/cartRenderer.js";
 import { CartProvider } from "./context/CartContext.js";
+import { initializeDOM } from "./dom/domInitializer.js";
 
 // Context 초기화 (리액트에서는 <CartProvider>로 감쌀 예정)
 const context = CartProvider({ prodList: productList });
 
-import { createCartHeader } from "./components/render/cartHeader.js";
-import { createHelpPanel } from "./components/render/helpPanel.js";
-import { createHelpToggleButton } from "./components/render/helpToggleButton.js";
-import { createOrderSummaryPanel } from "./components/render/orderSummaryPanel.js";
-
 function main() {
-  let root;
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let selectorContainer;
-  let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
-
   // Context 상태 초기화
   context.updateCartTotals(0, 0, 0);
   context.setLastSelected(null);
 
-  root = document.getElementById("app");
-  header = createCartHeader();
-  const sel = document.createElement("select");
-  sel.id = "product-select";
-  gridContainer = document.createElement("div");
-  leftColumn = document.createElement("div");
-  leftColumn.className = "bg-white border border-gray-200 p-8 overflow-y-auto";
-  selectorContainer = document.createElement("div");
-  selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-  gridContainer.className =
-    "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  const addBtn = document.createElement("button");
-  const stockInfo = document.createElement("div");
-  addBtn.id = "add-to-cart";
-  stockInfo.id = "stock-status";
-  stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addBtn.innerHTML = "Add to Cart";
-  addBtn.className =
-    "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-  selectorContainer.appendChild(sel);
-  selectorContainer.appendChild(addBtn);
-  selectorContainer.appendChild(stockInfo);
-  leftColumn.appendChild(selectorContainer);
-  const cartDisp = document.createElement("div");
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = "cart-items";
+  // DOM 초기화
+  const domElements = initializeDOM(context);
+  const { manualToggle, manualOverlay, manualColumn } = domElements;
 
-  // DOM 참조를 Context에 저장 (리액트에서는 useRef로 관리 예정)
-  context.setRef("sel", sel);
-  context.setRef("addBtn", addBtn);
-  context.setRef("stockInfo", stockInfo);
-  context.setRef("cartDisp", cartDisp);
-  rightColumn = createOrderSummaryPanel();
-  const sum = rightColumn.querySelector("#cart-total");
-  context.setRef("sum", sum);
-  manualToggle = createHelpToggleButton();
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle("hidden");
-    manualColumn.classList.toggle("translate-x-full");
-  };
-  manualOverlay = document.createElement("div");
-  manualOverlay.className =
-    "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add("hidden");
-      manualColumn.classList.add("translate-x-full");
-    }
-  };
-  manualColumn = createHelpPanel();
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
-  root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
+  // Context handlers 생성
+  const handlers = createContextHandlers(context);
+  const { onUpdateSelectOptionsWrapper, handleCalculateCartStuffWrapper } =
+    handlers;
+
+  // Help panel handlers 설정
+  setupHelpPanelHandlers(manualToggle, manualOverlay, manualColumn);
+
+  // 초기 UI 업데이트
   onUpdateSelectOptionsWrapper();
   handleCalculateCartStuffWrapper();
+
+  // 프로모션 시작
+  const updatePricesHandler = handlers.createUpdatePricesHandler();
   startLightningSale(
     context.getState().prodList,
     onUpdateSelectOptionsWrapper,
-    () =>
-      doUpdatePricesInCart(
-        cartDisp,
-        context.getState().prodList,
-        handleCalculateCartStuffWrapper
-      )
+    updatePricesHandler
   );
   startSuggestedPromotion(
     context.getState().prodList,
     context.getState().ui.lastSelected,
     onUpdateSelectOptionsWrapper,
-    () =>
-      doUpdatePricesInCart(
-        cartDisp,
-        context.getState().prodList,
-        handleCalculateCartStuffWrapper
-      )
+    updatePricesHandler
   );
-}
-
-function onUpdateSelectOptionsWrapper() {
-  const sel = context.getRef("sel");
-  const prodList = context.getState().prodList;
-  onUpdateSelectOptions(sel, prodList);
-}
-
-function handleCalculateCartStuffWrapper() {
-  const cartDisp = context.getRef("cartDisp");
-  const prodList = context.getState().prodList;
-  const stockInfo = context.getRef("stockInfo");
-
-  const result = handleCalculateCartStuff(
-    cartDisp,
-    prodList,
-    (
-      finalTotal,
-      itemCnt,
-      originalTotal,
-      itemDiscounts,
-      isTuesday,
-      pointsData
-    ) =>
-      updateCartUI(
-        finalTotal,
-        itemCnt,
-        originalTotal,
-        itemDiscounts,
-        isTuesday,
-        pointsData,
-        cartDisp,
-        prodList,
-        context.getRef("sum")
-      ),
-    () => updateStockInfo(stockInfo, prodList)
-  );
-
-  // Context 상태 업데이트 (리액트에서는 setState로 관리 예정)
-  context.updateCartTotals(result.totalAmount, result.bonusPoints, 0);
 }
 
 main();
+
+// Context handlers 생성 및 Cart event handlers 설정
+const handlers = createContextHandlers(context);
+const { handleCalculateCartStuffWrapper, onUpdateSelectOptionsWrapper } =
+  handlers;
 
 // Context에서 DOM 참조 및 상태 가져오기
 const addBtn = context.getRef("addBtn");

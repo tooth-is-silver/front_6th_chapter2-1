@@ -11,7 +11,10 @@ import {
   DiscountBannerTemplate,
   PointsInfoTemplate,
 } from "../components/OrderSummaryTemplate.js";
-import { getProductPriceHTML, getProductDisplayName } from "../utils/productUtils.js";
+import {
+  getProductPriceHTML,
+  getProductDisplayName,
+} from "../utils/productUtils.js";
 
 export function updateCartUI(
   finalTotal,
@@ -45,14 +48,18 @@ export function updateCartUI(
 
         return CartItemSummaryTemplate({ product, quantity, itemTotal });
       })
-      .join('');
-    
+      .join("");
+
     summaryDetails.innerHTML += cartItemsHTML;
 
     summaryDetails.innerHTML += SubtotalTemplate({ originalTotal });
 
     // 할인 정보 추가 (컴포넌트 기반)
-    summaryDetails.innerHTML += DiscountSectionTemplate({ itemCnt, itemDiscounts, isTuesday });
+    summaryDetails.innerHTML += DiscountSectionTemplate({
+      itemCnt,
+      itemDiscounts,
+      isTuesday,
+    });
 
     summaryDetails.innerHTML += ShippingInfoTemplate();
   }
@@ -69,9 +76,9 @@ export function updateCartUI(
     if (itemCnt === 0) {
       loyaltyPointsDiv.style.display = "none";
     } else if (pointsData.points > 0) {
-      loyaltyPointsDiv.innerHTML = PointsInfoTemplate({ 
-        points: pointsData.points, 
-        details: pointsData.details 
+      loyaltyPointsDiv.innerHTML = PointsInfoTemplate({
+        points: pointsData.points,
+        details: pointsData.details,
       });
       loyaltyPointsDiv.style.display = "block";
     } else {
@@ -80,7 +87,6 @@ export function updateCartUI(
     }
   }
 
-  // 할인 정보
   const discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
   const discountRate =
@@ -88,7 +94,10 @@ export function updateCartUI(
 
   if (discountRate > 0 && finalTotal > 0) {
     const savedAmount = originalTotal - finalTotal;
-    discountInfoDiv.innerHTML = DiscountBannerTemplate({ discountRate, savedAmount });
+    discountInfoDiv.innerHTML = DiscountBannerTemplate({
+      discountRate,
+      savedAmount,
+    });
   }
 
   // 화요일 특별 배너
