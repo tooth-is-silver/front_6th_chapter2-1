@@ -1,4 +1,4 @@
-export function createHeader({ itemCount = 0 }) {
+export function Header({ itemCount = 0 }) {
   const header = document.createElement("div");
   header.className = "mb-8";
   header.innerHTML = `

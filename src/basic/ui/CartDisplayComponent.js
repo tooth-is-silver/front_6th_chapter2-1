@@ -1,4 +1,4 @@
-export function createCartDisplay({ DOM_IDS, onCartAction }) {
+export function CartDisplay({ DOM_IDS, onCartAction }) {
   const cartDisp = document.createElement("div");
   cartDisp.id = DOM_IDS.CART_ITEMS;
 
@@ -9,7 +9,7 @@ export function createCartDisplay({ DOM_IDS, onCartAction }) {
   return cartDisp;
 }
 
-export function createCartItem({ product }) {
+export function CartItem({ product }) {
   const newItem = document.createElement("div");
   newItem.id = product.id;
   newItem.className =

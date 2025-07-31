@@ -1,7 +1,7 @@
 import { DOM_IDS } from "../shared/constants";
 import { CSS_SELECTORS } from "../shared/constants";
 
-export function createOrderSummary() {
+export function OrderSummary() {
   const orderSummary = document.createElement("div");
   orderSummary.className = "bg-black text-white p-8 flex flex-col";
   orderSummary.innerHTML = `
@@ -161,5 +161,25 @@ export function updateTuesdaySpecial({ isTuesday, totalAmt }) {
     tuesdaySpecialDiv.classList.remove("hidden");
   } else {
     tuesdaySpecialDiv.classList.add("hidden");
+  }
+}
+
+export function updateBonusPointsDisplay({ bonusPts, pointsResult }) {
+  const ptsTag = document.getElementById("loyalty-points");
+
+  if (ptsTag) {
+    if (bonusPts > 0) {
+      ptsTag.innerHTML =
+        '<div>적립 포인트: <span class="font-bold">' +
+        bonusPts +
+        "p</span></div>" +
+        '<div class="text-2xs opacity-70 mt-1">' +
+        pointsResult.pointsDetails.join(", ") +
+        "</div>";
+      ptsTag.style.display = "block";
+    } else {
+      ptsTag.textContent = "적립 포인트: 0p";
+      ptsTag.style.display = "block";
+    }
   }
 }

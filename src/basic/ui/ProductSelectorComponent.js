@@ -4,7 +4,7 @@ import {
   QUANTITY_THRESHOLDS,
 } from "../shared/constants";
 
-export function createProductSelector({ onAddToCart }) {
+export function ProductSelector({ onAddToCart }) {
   const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
 
