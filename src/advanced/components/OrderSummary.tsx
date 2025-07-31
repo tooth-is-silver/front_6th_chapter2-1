@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { CartItem } from "../types";
+import type { CartItem, Product } from "../types";
 import { DISCOUNT_THRESHOLDS, DISCOUNT_RATES } from "../constants";
 
 type ItemDiscount = {
@@ -9,6 +9,7 @@ type ItemDiscount = {
 
 type OrderSummaryProps = {
   cartItems: CartItem[];
+  products: Product[];
   subTotalPrice: number;
   totalAmount: number;
   originalTotal: number;
@@ -22,6 +23,7 @@ type OrderSummaryProps = {
 
 type SummaryDetailsProps = {
   cartItems: CartItem[];
+  products: Product[];
   subTotalPrice: number;
   itemCount: number;
   itemDiscounts: ItemDiscount[];
@@ -31,6 +33,7 @@ type SummaryDetailsProps = {
 
 function SummaryDetails({
   cartItems,
+  products,
   subTotalPrice,
   itemCount,
   itemDiscounts,
@@ -39,13 +42,33 @@ function SummaryDetails({
 }: SummaryDetailsProps) {
   const itemTotals = useMemo(
     () =>
-      cartItems.map((item) => ({
-        id: item.product.id,
-        name: item.product.name,
-        quantity: item.quantity,
-        total: item.product.price * item.quantity,
-      })),
-    [cartItems]
+      cartItems.map((item) => {
+        // CartDisplay와 동일하게 products에서 최신 정보를 찾기
+        const currentProduct = products.find(
+          (product) => product.id === item.product.id
+        );
+
+        if (!currentProduct) {
+          return {
+            id: item.product.id,
+            name: item.product.name,
+            quantity: item.quantity,
+            total: item.product.price * item.quantity,
+            isDiscounted: false,
+            discountedFrom: item.product.originalPrice * item.quantity,
+          };
+        }
+
+        return {
+          id: currentProduct.id,
+          name: currentProduct.name,
+          quantity: item.quantity,
+          total: currentProduct.price * item.quantity,
+          isDiscounted: currentProduct.price < currentProduct.originalPrice,
+          discountedFrom: currentProduct.originalPrice * item.quantity,
+        };
+      }),
+    [cartItems, products]
   );
 
   if (subTotalPrice <= 0) return null;
@@ -59,8 +82,18 @@ function SummaryDetails({
         >
           <span>
             {item.name} x {item.quantity}
+            {item.isDiscounted && (
+              <span className="text-green-400 ml-1">🔻</span>
+            )}
           </span>
-          <span>₩{item.total.toLocaleString()}</span>
+          <div className="text-right">
+            {item.isDiscounted && (
+              <div className="text-2xs text-gray-500 line-through">
+                ₩{item.discountedFrom.toLocaleString()}
+              </div>
+            )}
+            <span>₩{item.total.toLocaleString()}</span>
+          </div>
         </div>
       ))}
 
@@ -188,6 +221,7 @@ function TuesdaySpecial({
 
 export function OrderSummary({
   cartItems,
+  products,
   subTotalPrice,
   totalAmount,
   originalTotal,
@@ -207,6 +241,7 @@ export function OrderSummary({
       <div className="flex-1 flex flex-col">
         <SummaryDetails
           cartItems={cartItems}
+          products={products}
           subTotalPrice={subTotalPrice}
           itemCount={itemCount}
           itemDiscounts={itemDiscounts}

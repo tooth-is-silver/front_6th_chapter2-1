@@ -92,6 +92,7 @@ export function CartPage() {
 
         <OrderSummary
           cartItems={cartItems}
+          products={products}
           subTotalPrice={subTotalPrice}
           totalAmount={discountResult.finalTotal}
           originalTotal={discountResult.originalTotal}
