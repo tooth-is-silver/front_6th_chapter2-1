@@ -8,6 +8,7 @@ import {
   CartDisplay,
   OrderSummary,
 } from "../components";
+import { MESSAGES } from "../constants";
 
 export function CartPage() {
   // Context에서 상태와 액션 가져오기
@@ -58,6 +59,13 @@ export function CartPage() {
   };
 
   const handleQuantityChange = (productId: string, change: number) => {
+    const filterItem = cartItems.filter(
+      (item) => item.product.id === productId
+    )[0];
+    console.log(cartItems);
+    const { quantity, product } = filterItem;
+    if (change + quantity > product.quantity)
+      return alert(MESSAGES.OUT_OF_STOCK);
     dispatch({
       type: "UPDATE_CART_ITEM_QUANTITY",
       payload: { productId, change },

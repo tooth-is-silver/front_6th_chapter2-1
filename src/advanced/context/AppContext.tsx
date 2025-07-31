@@ -1,6 +1,6 @@
-import { createContext, useContext, useReducer, ReactNode } from 'react';
-import { INITIAL_PRODUCTS } from '../constants';
-import type { Product, CartItem } from '../types';
+import { createContext, useContext, useReducer, ReactNode } from "react";
+import { INITIAL_PRODUCTS } from "../constants";
+import type { Product, CartItem } from "../types";
 
 // State Type
 export interface AppState {
@@ -15,18 +15,21 @@ export interface AppState {
 
 // Action Types
 type AppAction =
-  | { type: 'SET_PRODUCTS'; payload: Product[] }
-  | { type: 'SET_CART_ITEMS'; payload: CartItem[] }
-  | { type: 'SET_SELECTED_PRODUCT_ID'; payload: string }
-  | { type: 'SET_LAST_SELECTED_PRODUCT_ID'; payload: string | null }
-  | { type: 'SET_ITEM_COUNT'; payload: number }
-  | { type: 'SET_TOTAL_AMOUNT'; payload: number }
-  | { type: 'SET_BONUS_POINTS'; payload: number }
-  | { type: 'ADD_TO_CART'; payload: { productId: string } }
-  | { type: 'UPDATE_CART_ITEM_QUANTITY'; payload: { productId: string; change: number } }
-  | { type: 'REMOVE_CART_ITEM'; payload: { productId: string } }
-  | { type: 'APPLY_LIGHTNING_SALE'; payload: { productId: string } }
-  | { type: 'APPLY_SUGGESTED_SALE'; payload: { productId: string } };
+  | { type: "SET_PRODUCTS"; payload: Product[] }
+  | { type: "SET_CART_ITEMS"; payload: CartItem[] }
+  | { type: "SET_SELECTED_PRODUCT_ID"; payload: string }
+  | { type: "SET_LAST_SELECTED_PRODUCT_ID"; payload: string | null }
+  | { type: "SET_ITEM_COUNT"; payload: number }
+  | { type: "SET_TOTAL_AMOUNT"; payload: number }
+  | { type: "SET_BONUS_POINTS"; payload: number }
+  | { type: "ADD_TO_CART"; payload: { productId: string } }
+  | {
+      type: "UPDATE_CART_ITEM_QUANTITY";
+      payload: { productId: string; change: number };
+    }
+  | { type: "REMOVE_CART_ITEM"; payload: { productId: string } }
+  | { type: "APPLY_LIGHTNING_SALE"; payload: { productId: string } }
+  | { type: "APPLY_SUGGESTED_SALE"; payload: { productId: string } };
 
 // Initial State
 const initialState: AppState = {
@@ -42,33 +45,35 @@ const initialState: AppState = {
 // Reducer
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
-    case 'SET_PRODUCTS':
+    case "SET_PRODUCTS":
       return { ...state, products: action.payload };
-    
-    case 'SET_CART_ITEMS':
+
+    case "SET_CART_ITEMS":
       return { ...state, cartItems: action.payload };
-    
-    case 'SET_SELECTED_PRODUCT_ID':
+
+    case "SET_SELECTED_PRODUCT_ID":
       return { ...state, selectedProductId: action.payload };
-    
-    case 'SET_LAST_SELECTED_PRODUCT_ID':
+
+    case "SET_LAST_SELECTED_PRODUCT_ID":
       return { ...state, lastSelectedProductId: action.payload };
-    
-    case 'SET_ITEM_COUNT':
+
+    case "SET_ITEM_COUNT":
       return { ...state, itemCount: action.payload };
-    
-    case 'SET_TOTAL_AMOUNT':
+
+    case "SET_TOTAL_AMOUNT":
       return { ...state, totalAmount: action.payload };
-    
-    case 'SET_BONUS_POINTS':
+
+    case "SET_BONUS_POINTS":
       return { ...state, bonusPoints: action.payload };
-    
-    case 'ADD_TO_CART': {
-      const product = state.products.find(p => p.id === action.payload.productId);
+
+    case "ADD_TO_CART": {
+      const product = state.products.find(
+        (p) => p.id === action.payload.productId
+      );
       if (!product || product.quantity <= 0) return state;
 
       const existingItemIndex = state.cartItems.findIndex(
-        item => item.product.id === action.payload.productId
+        (item) => item.product.id === action.payload.productId
       );
 
       let newCartItems: CartItem[];
@@ -87,7 +92,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         newCartItems = [...state.cartItems, newCartItem];
       }
 
-      const newProducts = state.products.map(p =>
+      const newProducts = state.products.map((p) =>
         p.id === action.payload.productId
           ? { ...p, quantity: p.quantity - 1 }
           : p
@@ -101,10 +106,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     }
 
-    case 'UPDATE_CART_ITEM_QUANTITY': {
+    case "UPDATE_CART_ITEM_QUANTITY": {
       const { productId, change } = action.payload;
       let newCartItems = state.cartItems
-        .map(item => {
+        .map((item) => {
           if (item.product.id === productId) {
             const newQuantity = item.quantity + change;
             if (newQuantity <= 0) return null;
@@ -114,10 +119,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
         })
         .filter(Boolean) as CartItem[];
 
-      const newProducts = state.products.map(p =>
-        p.id === productId
-          ? { ...p, quantity: p.quantity - change }
-          : p
+      const newProducts = state.products.map((p) =>
+        p.id === productId ? { ...p, quantity: p.quantity - change } : p
       );
 
       return {
@@ -127,17 +130,17 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     }
 
-    case 'REMOVE_CART_ITEM': {
+    case "REMOVE_CART_ITEM": {
       const itemToRemove = state.cartItems.find(
-        item => item.product.id === action.payload.productId
+        (item) => item.product.id === action.payload.productId
       );
       if (!itemToRemove) return state;
 
       const newCartItems = state.cartItems.filter(
-        item => item.product.id !== action.payload.productId
+        (item) => item.product.id !== action.payload.productId
       );
 
-      const newProducts = state.products.map(p =>
+      const newProducts = state.products.map((p) =>
         p.id === action.payload.productId
           ? { ...p, quantity: p.quantity + itemToRemove.quantity }
           : p
@@ -150,8 +153,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     }
 
-    case 'APPLY_LIGHTNING_SALE': {
-      const newProducts = state.products.map(product => {
+    case "APPLY_LIGHTNING_SALE": {
+      const newProducts = state.products.map((product) => {
         if (product.id === action.payload.productId) {
           return {
             ...product,
@@ -165,8 +168,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, products: newProducts };
     }
 
-    case 'APPLY_SUGGESTED_SALE': {
-      const newProducts = state.products.map(product => {
+    case "APPLY_SUGGESTED_SALE": {
+      const newProducts = state.products.map((product) => {
         if (product.id === action.payload.productId) {
           return {
             ...product,
@@ -212,7 +215,7 @@ export function AppProvider({ children }: AppProviderProps) {
 export function useAppContext() {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useAppContext must be used within AppProvider');
+    throw new Error("useAppContext must be used within AppProvider");
   }
   return context;
 }

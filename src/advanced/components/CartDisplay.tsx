@@ -115,7 +115,7 @@ function CartItemComponent({
             onClick={handleIncrease}
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
           >
-            +
+            {`+`}
           </button>
         </div>
       </div>
