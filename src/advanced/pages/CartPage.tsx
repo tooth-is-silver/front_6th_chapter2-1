@@ -62,7 +62,6 @@ export function CartPage() {
     const filterItem = cartItems.filter(
       (item) => item.product.id === productId
     )[0];
-    console.log(cartItems);
     const { quantity, product } = filterItem;
     if (change + quantity > product.quantity)
       return alert(MESSAGES.OUT_OF_STOCK);
