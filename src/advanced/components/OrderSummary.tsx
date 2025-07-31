@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { CartItem, Product } from "../types";
+import type { CartItem } from "../types";
 import { DISCOUNT_THRESHOLDS, DISCOUNT_RATES } from "../constants";
 
 type ItemDiscount = {

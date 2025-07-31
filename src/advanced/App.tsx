@@ -1,7 +1,12 @@
+import { AppProvider } from "./context/AppContext";
 import { CartPage } from "./pages/CartPage";
 
 function App() {
-  return <CartPage />;
+  return (
+    <AppProvider>
+      <CartPage />
+    </AppProvider>
+  );
 }
 
 export default App;
