@@ -9,7 +9,6 @@ type ItemDiscount = {
 
 type OrderSummaryProps = {
   cartItems: CartItem[];
-  products: Product[];
   subTotalPrice: number;
   totalAmount: number;
   originalTotal: number;

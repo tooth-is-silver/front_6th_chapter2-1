@@ -1,95 +1,92 @@
 import { useMemo, useCallback } from "react";
-import type { CartItem } from "../types";
+import type { CartItem, Product } from "../types";
 import { DISCOUNT_THRESHOLDS, QUANTITY_CHANGE } from "../constants";
 
 type CartItemProps = {
   item: CartItem;
+  products: Product[];
   onQuantityChange: (productId: string, change: number) => void;
   onRemove: (productId: string) => void;
 };
 
 type CartDisplayProps = {
   items: CartItem[];
+  products: Product[];
   onQuantityChange: (productId: string, change: number) => void;
   onRemove: (productId: string) => void;
 };
 
 function CartItemComponent({
   item,
+  products,
   onQuantityChange,
   onRemove,
 }: CartItemProps) {
-  const { product, quantity } = item;
+  const filteredItem = products.filter(
+    (product) => product.id === item.product.id
+  )[0];
+  const { isOnLightningSale, isSuggestedSale, originalPrice, price, id, name } =
+    filteredItem;
+  const { quantity } = item;
 
   const priceDisplay = useMemo(() => {
-    if (product.isOnLightningSale && product.isSuggestedSale) {
+    if (isOnLightningSale && isSuggestedSale) {
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalPrice.toLocaleString()}
+            ₩{originalPrice.toLocaleString()}
           </span>{" "}
-          <span className="text-purple-600">
-            ₩{product.price.toLocaleString()}
-          </span>
+          <span className="text-purple-600">₩{price.toLocaleString()}</span>
         </>
       );
-    } else if (product.isOnLightningSale) {
+    } else if (isOnLightningSale) {
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalPrice.toLocaleString()}
+            ₩{originalPrice.toLocaleString()}
           </span>{" "}
-          <span className="text-red-500">
-            ₩{product.price.toLocaleString()}
-          </span>
+          <span className="text-red-500">₩{price.toLocaleString()}</span>
         </>
       );
-    } else if (product.isSuggestedSale) {
+    } else if (isSuggestedSale) {
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalPrice.toLocaleString()}
+            ₩{originalPrice.toLocaleString()}
           </span>{" "}
-          <span className="text-blue-500">
-            ₩{product.price.toLocaleString()}
-          </span>
+          <span className="text-blue-500">₩{price.toLocaleString()}</span>
         </>
       );
     } else {
-      return `₩${product.price.toLocaleString()}`;
+      return `₩${price.toLocaleString()}`;
     }
-  }, [
-    product.isOnLightningSale,
-    product.isSuggestedSale,
-    product.originalPrice,
-    product.price,
-  ]);
+  }, [isOnLightningSale, isSuggestedSale, originalPrice, price]);
 
   const nameDisplay = useMemo(() => {
     const saleIcon =
-      product.isOnLightningSale && product.isSuggestedSale
+      isOnLightningSale && isSuggestedSale
         ? "⚡💝"
-        : product.isOnLightningSale
+        : isOnLightningSale
         ? "⚡"
-        : product.isSuggestedSale
+        : isSuggestedSale
         ? "💝"
         : "";
-    return saleIcon + product.name;
-  }, [product.isOnLightningSale, product.isSuggestedSale, product.name]);
+    return saleIcon + name;
+  }, [isOnLightningSale, isSuggestedSale, name]);
 
   const shouldBoldPrice = quantity >= DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT;
 
   const handleDecrease = useCallback(() => {
-    onQuantityChange(product.id, QUANTITY_CHANGE.DECREASE);
-  }, [onQuantityChange, product.id]);
+    onQuantityChange(id, QUANTITY_CHANGE.DECREASE);
+  }, [onQuantityChange, id]);
 
   const handleIncrease = useCallback(() => {
-    onQuantityChange(product.id, QUANTITY_CHANGE.INCREASE);
-  }, [onQuantityChange, product.id]);
+    onQuantityChange(id, QUANTITY_CHANGE.INCREASE);
+  }, [onQuantityChange, id]);
 
   const handleRemove = useCallback(() => {
-    onRemove(product.id);
-  }, [onRemove, product.id]);
+    onRemove(id);
+  }, [onRemove, id]);
 
   return (
     <div className="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
@@ -144,6 +141,7 @@ function CartItemComponent({
 
 export function CartDisplay({
   items,
+  products,
   onQuantityChange,
   onRemove,
 }: CartDisplayProps) {
@@ -159,8 +157,9 @@ export function CartDisplay({
     <div>
       {items.map((item) => (
         <CartItemComponent
-          key={item.product.id}
+          key={item.id}
           item={item}
+          products={products}
           onQuantityChange={onQuantityChange}
           onRemove={onRemove}
         />

@@ -177,17 +177,17 @@ export function CartPage() {
     if (itemCount >= POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.threshold) {
       points += POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.points;
       details.push(
-        `수량보너스 +${POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.points}p`
+        `대량구매(${POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.threshold}개+) +${POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.points}p`
       );
     } else if (itemCount >= POINTS_SYSTEM.QUANTITY_BONUS.TIER_2.threshold) {
       points += POINTS_SYSTEM.QUANTITY_BONUS.TIER_2.points;
       details.push(
-        `수량보너스 +${POINTS_SYSTEM.QUANTITY_BONUS.TIER_2.points}p`
+        `대량구매(${POINTS_SYSTEM.QUANTITY_BONUS.TIER_2.threshold}개+) +${POINTS_SYSTEM.QUANTITY_BONUS.TIER_2.points}p`
       );
     } else if (itemCount >= POINTS_SYSTEM.QUANTITY_BONUS.TIER_1.threshold) {
       points += POINTS_SYSTEM.QUANTITY_BONUS.TIER_1.points;
       details.push(
-        `수량보너스 +${POINTS_SYSTEM.QUANTITY_BONUS.TIER_1.points}p`
+        `대량구매(${POINTS_SYSTEM.QUANTITY_BONUS.TIER_1.threshold}개+) +${POINTS_SYSTEM.QUANTITY_BONUS.TIER_1.points}p`
       );
     }
 
@@ -444,6 +444,7 @@ export function CartPage() {
 
           <CartDisplay
             items={cartItems}
+            products={products}
             onQuantityChange={handleQuantityChange}
             onRemove={handleRemoveItem}
           />
@@ -451,7 +452,6 @@ export function CartPage() {
 
         <OrderSummary
           cartItems={cartItems}
-          products={products}
           subTotalPrice={subTotalPrice}
           totalAmount={totalAmount}
           originalTotal={originalTotal}
