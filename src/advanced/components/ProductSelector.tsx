@@ -1,5 +1,6 @@
 import { useMemo, useCallback, ChangeEvent } from "react";
 import type { Product } from "../types";
+import { DISCOUNT_RATES, STOCK_THRESHOLDS } from "../constants";
 
 type ProductSelectorProps = {
   products: Product[];
@@ -15,16 +16,16 @@ type ProductOptionProps = {
 
 function ProductOption({ product }: ProductOptionProps) {
   const optionText = useMemo(() => {
-    if (product.quantity === 0) {
+    if (product.quantity === STOCK_THRESHOLDS.OUT_OF_STOCK) {
       return `${product.name} - ${product.value}원 (품절)`;
     }
 
     if (product.onSale && product.suggestSale) {
-      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
+      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (${Math.round(DISCOUNT_RATES.SUPER_SALE * 100)}% SUPER SALE!)`;
     } else if (product.onSale) {
-      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
+      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (${Math.round(DISCOUNT_RATES.LIGHTNING_SALE * 100)}% SALE!)`;
     } else if (product.suggestSale) {
-      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
+      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (${Math.round(DISCOUNT_RATES.SUGGEST_SALE * 100)}% 추천할인!)`;
     } else {
       return `${product.name} - ${product.value}원`;
     }
@@ -38,7 +39,7 @@ function ProductOption({ product }: ProductOptionProps) {
   ]);
 
   const optionClassName = useMemo(() => {
-    if (product.quantity === 0) {
+    if (product.quantity === STOCK_THRESHOLDS.OUT_OF_STOCK) {
       return "text-gray-400";
     }
 
@@ -56,7 +57,7 @@ function ProductOption({ product }: ProductOptionProps) {
   return (
     <option
       value={product.id}
-      disabled={product.quantity === 0}
+      disabled={product.quantity === STOCK_THRESHOLDS.OUT_OF_STOCK}
       className={optionClassName}
     >
       {optionText}
@@ -66,12 +67,12 @@ function ProductOption({ product }: ProductOptionProps) {
 
 function StockInfo({ products }: { products: Product[] }) {
   const stockMessage = useMemo(() => {
-    const lowStockThreshold = 5; // QUANTITY_THRESHOLDS.LOW_STOCK
+    const lowStockThreshold = STOCK_THRESHOLDS.LOW_STOCK;
 
     return products
       .filter((item) => item.quantity < lowStockThreshold)
       .map((item) => {
-        if (item.quantity > 0) {
+        if (item.quantity > STOCK_THRESHOLDS.OUT_OF_STOCK) {
           return `${item.name}: 재고 부족 (${item.quantity}개 남음)`;
         } else {
           return `${item.name}: 품절`;
@@ -92,7 +93,7 @@ function StockInfo({ products }: { products: Product[] }) {
 export function ProductSelector({
   products,
   selectedProductId,
-  stockWarningThreshold = 10,
+  stockWarningThreshold = STOCK_THRESHOLDS.WARNING_THRESHOLD,
   onProductSelect,
   onAddToCart,
 }: ProductSelectorProps) {

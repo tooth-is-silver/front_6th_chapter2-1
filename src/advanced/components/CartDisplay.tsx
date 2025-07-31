@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from "react";
 import type { CartItem } from "../types";
+import { DISCOUNT_THRESHOLDS, QUANTITY_CHANGE } from "../constants";
 
 type CartItemProps = {
   item: CartItem;
@@ -76,14 +77,14 @@ function CartItemComponent({
     return saleIcon + product.name;
   }, [product.onSale, product.suggestSale, product.name]);
 
-  const shouldBoldPrice = quantity >= 10; // QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT
+  const shouldBoldPrice = quantity >= DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT;
 
   const handleDecrease = useCallback(() => {
-    onQuantityChange(product.id, -1);
+    onQuantityChange(product.id, QUANTITY_CHANGE.DECREASE);
   }, [onQuantityChange, product.id]);
 
   const handleIncrease = useCallback(() => {
-    onQuantityChange(product.id, 1);
+    onQuantityChange(product.id, QUANTITY_CHANGE.INCREASE);
   }, [onQuantityChange, product.id]);
 
   const handleRemove = useCallback(() => {

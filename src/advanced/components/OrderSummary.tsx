@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { CartItem, Product } from "../types";
+import { DISCOUNT_THRESHOLDS, DISCOUNT_RATES } from "../constants";
 
 type ItemDiscount = {
   name: string;
@@ -71,10 +72,10 @@ function SummaryDetails({
         <span>₩{subTotalPrice.toLocaleString()}</span>
       </div>
 
-      {itemCount >= 30 ? (
+      {itemCount >= DISCOUNT_THRESHOLDS.BULK_DISCOUNT ? (
         <div className="flex justify-between text-sm tracking-wide text-green-400">
-          <span className="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span className="text-xs">-25%</span>
+          <span className="text-xs">🎉 대량구매 할인 ({DISCOUNT_THRESHOLDS.BULK_DISCOUNT}개 이상)</span>
+          <span className="text-xs">-{Math.round(DISCOUNT_RATES.BULK * 100)}%</span>
         </div>
       ) : (
         itemDiscounts.map((item) => (
@@ -82,7 +83,7 @@ function SummaryDetails({
             key={item.name}
             className="flex justify-between text-sm tracking-wide text-green-400"
           >
-            <span className="text-xs">{item.name} (10개↑)</span>
+            <span className="text-xs">{item.name} ({DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
             <span className="text-xs">-{item.discount}%</span>
           </div>
         ))
@@ -91,7 +92,7 @@ function SummaryDetails({
       {isTuesday && totalAmount > 0 && (
         <div className="flex justify-between text-sm tracking-wide text-purple-400">
           <span className="text-xs">🌟 화요일 추가 할인</span>
-          <span className="text-xs">-10%</span>
+          <span className="text-xs">-{Math.round(DISCOUNT_RATES.TUESDAY * 100)}%</span>
         </div>
       )}
 
