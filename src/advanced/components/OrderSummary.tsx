@@ -152,17 +152,15 @@ function LoyaltyPoints({
 }) {
   return (
     <div className="text-xs text-blue-400 mt-2 text-right">
-      {bonusPoints > 0 ? (
-        <div>
+      {bonusPoints > 0 && (
+        <>
           <div>
             적립 포인트: <span className="font-bold">{bonusPoints}p</span>
           </div>
           <div className="text-2xs opacity-70 mt-1">
             {pointsDetails.join(", ")}
           </div>
-        </div>
-      ) : (
-        <div>적립 포인트: 0p</div>
+        </>
       )}
     </div>
   );

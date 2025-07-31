@@ -429,39 +429,40 @@ export function CartPage() {
   }, [lastSelectedProductId]);
 
   return (
-    <div className="max-w-md mx-auto bg-white relative">
+    <>
       <ManualModal />
+      <Header itemCount={itemCount} />
 
-      <div className="p-8">
-        <Header itemCount={itemCount} />
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
+        <div className="p-8 bg-white border border-gray-200 p-8 overflow-y-auto">
+          <ProductSelector
+            products={products}
+            selectedProductId={selectedProductId}
+            onProductSelect={handleProductSelect}
+            onAddToCart={handleAddToCart}
+          />
 
-        <ProductSelector
+          <CartDisplay
+            items={cartItems}
+            onQuantityChange={handleQuantityChange}
+            onRemove={handleRemoveItem}
+          />
+        </div>
+
+        <OrderSummary
+          cartItems={cartItems}
           products={products}
-          selectedProductId={selectedProductId}
-          onProductSelect={handleProductSelect}
-          onAddToCart={handleAddToCart}
-        />
-
-        <CartDisplay
-          items={cartItems}
-          onQuantityChange={handleQuantityChange}
-          onRemove={handleRemoveItem}
+          subTotalPrice={subTotalPrice}
+          totalAmount={totalAmount}
+          originalTotal={originalTotal}
+          discountRate={discountRate}
+          itemCount={itemCount}
+          itemDiscounts={itemDiscounts}
+          isTuesday={isTuesday}
+          bonusPoints={bonusPoints}
+          pointsDetails={pointsDetails}
         />
       </div>
-
-      <OrderSummary
-        cartItems={cartItems}
-        products={products}
-        subTotalPrice={subTotalPrice}
-        totalAmount={totalAmount}
-        originalTotal={originalTotal}
-        discountRate={discountRate}
-        itemCount={itemCount}
-        itemDiscounts={itemDiscounts}
-        isTuesday={isTuesday}
-        bonusPoints={bonusPoints}
-        pointsDetails={pointsDetails}
-      />
-    </div>
+    </>
   );
 }
