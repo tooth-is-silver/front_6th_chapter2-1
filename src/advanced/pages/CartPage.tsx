@@ -5,6 +5,8 @@ import {
   DISCOUNT_RATES,
   POINTS_SYSTEM,
   INITIAL_PRODUCTS,
+  TIMING,
+  MESSAGES,
 } from "../constants";
 import {
   ManualModal,
@@ -26,6 +28,9 @@ export function CartPage() {
   const [selectedProductId, setSelectedProductId] = useState<string>(
     INITIAL_PRODUCTS[0].id
   );
+  const [lastSelectedProductId, setLastSelectedProductId] = useState<
+    string | null
+  >(null);
 
   // 화요일 여부 확인
   const isTuesday = useMemo(() => new Date().getDay() === 2, []);
@@ -62,6 +67,9 @@ export function CartPage() {
             break;
           case "p3":
             discountRate = DISCOUNT_RATES.INDIVIDUAL.MONITOR_ARM;
+            break;
+          case "p4":
+            discountRate = DISCOUNT_RATES.INDIVIDUAL.LAPTOP_POUCH;
             break;
           case "p5":
             discountRate = DISCOUNT_RATES.INDIVIDUAL.SPEAKER;
@@ -102,6 +110,9 @@ export function CartPage() {
               break;
             case "p3":
               discountRate = DISCOUNT_RATES.INDIVIDUAL.MONITOR_ARM;
+              break;
+            case "p4":
+              discountRate = DISCOUNT_RATES.INDIVIDUAL.LAPTOP_POUCH;
               break;
             case "p5":
               discountRate = DISCOUNT_RATES.INDIVIDUAL.SPEAKER;
@@ -145,6 +156,23 @@ export function CartPage() {
       details.push("화요일 2배");
     }
 
+    // 콤보 보너스
+    const hasKeyboard = cartItems.some((item) => item.product.id === "p1");
+    const hasMouse = cartItems.some((item) => item.product.id === "p2");
+    const hasMonitorArm = cartItems.some((item) => item.product.id === "p3");
+
+    if (hasKeyboard && hasMouse) {
+      points += POINTS_SYSTEM.COMBO_BONUS.KEYBOARD_MOUSE;
+      details.push(
+        `키보드+마우스 세트 +${POINTS_SYSTEM.COMBO_BONUS.KEYBOARD_MOUSE}p`
+      );
+    }
+
+    if (hasKeyboard && hasMouse && hasMonitorArm) {
+      points += POINTS_SYSTEM.COMBO_BONUS.FULL_SET;
+      details.push(`풀세트 구매 +${POINTS_SYSTEM.COMBO_BONUS.FULL_SET}p`);
+    }
+
     // 수량별 보너스
     if (itemCount >= POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.threshold) {
       points += POINTS_SYSTEM.QUANTITY_BONUS.TIER_3.points;
@@ -164,7 +192,7 @@ export function CartPage() {
     }
 
     return { bonusPoints: points, pointsDetails: details };
-  }, [totalAmount, itemCount, isTuesday]);
+  }, [totalAmount, itemCount, isTuesday, cartItems]);
 
   // 상품 선택 핸들러
   const handleProductSelect = useCallback((productId: string) => {
@@ -205,6 +233,9 @@ export function CartPage() {
         p.id === selectedProductId ? { ...p, quantity: p.quantity - 1 } : p
       )
     );
+
+    // 마지막 선택 상품 추적 (추천 세일용)
+    setLastSelectedProductId(selectedProductId);
   }, [selectedProductId, products, cartItems]);
 
   // 수량 변경 핸들러
@@ -280,57 +311,122 @@ export function CartPage() {
     [cartItems]
   );
 
-  // 번개세일 효과 (30초마다)
+  // 번개세일 효과 - basic 폴더와 동일한 로직
   useEffect(() => {
-    const lightningTimer = setInterval(() => {
-      setProducts((prev) =>
-        prev.map((product) => {
-          if (Math.random() < 0.3 && product.quantity > 0) {
-            // 30% 확률
-            return {
-              ...product,
-              onSale: !product.isOnLightningSale,
-              value: product.isOnLightningSale
-                ? product.originalPrice
-                : product.originalPrice * (1 - DISCOUNT_RATES.LIGHTNING_SALE),
-            };
-          }
-          return product;
-        })
-      );
-    }, 30000);
+    const lightningDelay = Math.random() * 10000; // 0-10초 랜덤 지연
 
-    return () => clearInterval(lightningTimer);
+    const startLightningTimer = () => {
+      const lightningTimer = setInterval(() => {
+        setProducts((prev) => {
+          const availableProducts = prev.filter(
+            (product) => product.quantity > 0 && !product.isOnLightningSale
+          );
+
+          if (availableProducts.length === 0) return prev;
+
+          const randomIndex = Math.floor(
+            Math.random() * availableProducts.length
+          );
+          const luckyProduct = availableProducts[randomIndex];
+
+          if (
+            luckyProduct &&
+            luckyProduct.quantity > 0 &&
+            !luckyProduct.isOnLightningSale
+          ) {
+            alert(
+              MESSAGES.LIGHTNING_SALE.replace(
+                "{productName}",
+                luckyProduct.name
+              )
+            );
+
+            return prev.map((product) => {
+              if (product.id === luckyProduct.id) {
+                return {
+                  ...product,
+                  isOnLightningSale: true,
+                  price: Math.round((product.originalPrice * 80) / 100),
+                };
+              }
+              return product;
+            });
+          }
+
+          return prev;
+        });
+      }, TIMING.LIGHTNING_SALE_INTERVAL);
+
+      return lightningTimer;
+    };
+
+    const delayTimer = setTimeout(() => {
+      const lightningTimer = startLightningTimer();
+      return () => clearInterval(lightningTimer);
+    }, lightningDelay);
+
+    return () => {
+      clearTimeout(delayTimer);
+    };
   }, []);
 
-  // 추천 상품 효과 (60초마다)
+  // 추천 상품 효과
   useEffect(() => {
-    const suggestTimer = setInterval(() => {
-      setProducts((prev) =>
-        prev.map((product) => {
-          if (Math.random() < 0.2 && product.quantity > 0) {
-            // 20% 확률
-            return {
-              ...product,
-              suggestSale: !product.isSuggestedSale,
-              value: product.isSuggestedSale
-                ? product.isOnLightningSale
-                  ? product.originalPrice * (1 - DISCOUNT_RATES.LIGHTNING_SALE)
-                  : product.originalPrice
-                : product.originalPrice *
-                  (1 - DISCOUNT_RATES.SUGGEST_SALE) *
-                  (product.isOnLightningSale
-                    ? 1 - DISCOUNT_RATES.LIGHTNING_SALE
-                    : 1),
-            };
-          }
-          return product;
-        })
-      );
-    }, 60000);
+    const suggestedDelay = Math.random() * TIMING.SUGGESTION_DELAY_MAX;
 
-    return () => clearInterval(suggestTimer);
-  }, []);
+    const startSuggestTimer = () => {
+      const suggestTimer = setInterval(() => {
+        if (!lastSelectedProductId) return;
+
+        setProducts((prev) => {
+          const suggestedProduct = prev.find(
+            (product) =>
+              product.id !== lastSelectedProductId &&
+              product.quantity > 0 &&
+              !product.isSuggestedSale
+          );
+
+          if (!suggestedProduct) return prev;
+
+          if (
+            suggestedProduct.quantity > 0 &&
+            !suggestedProduct.isSuggestedSale
+          ) {
+            alert(
+              MESSAGES.SUGGESTED_SALE.replace(
+                "{productName}",
+                suggestedProduct.name
+              )
+            );
+
+            return prev.map((product) => {
+              if (product.id === suggestedProduct.id) {
+                return {
+                  ...product,
+                  isSuggestedSale: true,
+                  price: Math.round((product.price * 95) / 100),
+                };
+              }
+              return product;
+            });
+          }
+
+          return prev;
+        });
+      }, TIMING.SUGGESTION_INTERVAL);
+
+      return suggestTimer;
+    };
+
+    const delayTimer = setTimeout(() => {
+      const suggestTimer = startSuggestTimer();
+      return () => clearInterval(suggestTimer);
+    }, suggestedDelay);
+
+    return () => {
+      clearTimeout(delayTimer);
+    };
+  }, [lastSelectedProductId]);
 
   return (
     <div className="max-w-md mx-auto bg-white relative">

@@ -17,6 +17,7 @@ export const DISCOUNT_RATES = {
     KEYBOARD: 0.1, // 10%
     MOUSE: 0.15, // 15%
     MONITOR_ARM: 0.2, // 20%
+    LAPTOP_POUCH: 0.05, // 5%
     SPEAKER: 0.25, // 25%
   },
 
@@ -75,4 +76,19 @@ export const PRODUCT_IDS = {
   MONITOR_ARM: "p3",
   LAPTOP_POUCH: "p4",
   SPEAKER: "p5",
+};
+
+// 타이밍 상수
+export const TIMING = {
+  LIGHTNING_SALE_INTERVAL: 30000, // 번개세일 간격 (30초)
+  SUGGESTION_INTERVAL: 60000, // 추천 알림 간격 (60초)
+  SUGGESTION_DELAY_MAX: 20000, // 추천 알림 최대 지연시간
+};
+
+// 메시지 상수
+export const MESSAGES = {
+  OUT_OF_STOCK: "재고가 부족합니다.",
+  LIGHTNING_SALE: "⚡번개세일! {productName}이(가) 20% 할인 중입니다!",
+  SUGGESTED_SALE:
+    "💝 {productName}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!",
 };
