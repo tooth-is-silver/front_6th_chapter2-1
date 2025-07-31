@@ -16,9 +16,9 @@ describe("advanced 장바구니 테스트", () => {
     container = document.getElementById("app");
 
     // React 앱 렌더링을 위한 동적 import
-    const { CartPage } = await import("../pages/CartPage");
+    const App = (await import("../App")).default;
     root = ReactDOM.createRoot(container);
-    root.render(React.createElement(CartPage));
+    root.render(React.createElement(App));
 
     // 렌더링 완료를 위한 대기
     await new Promise((resolve) => setTimeout(resolve, 0));
