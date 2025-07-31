@@ -4,6 +4,7 @@ import {
   DISCOUNT_THRESHOLDS,
   DISCOUNT_RATES,
   POINTS_SYSTEM,
+  INITIAL_PRODUCTS,
 } from "../constants";
 import {
   ManualModal,
@@ -12,55 +13,6 @@ import {
   CartDisplay,
   OrderSummary,
 } from "../components";
-
-// 초기 상품 데이터
-const INITIAL_PRODUCTS: Product[] = [
-  {
-    id: "p1",
-    name: "상품1",
-    value: 10000,
-    originalValue: 10000,
-    quantity: 50,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p2",
-    name: "상품2",
-    value: 20000,
-    originalValue: 20000,
-    quantity: 30,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p3",
-    name: "상품3",
-    value: 30000,
-    originalValue: 30000,
-    quantity: 20,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p4",
-    name: "상품4",
-    value: 15000,
-    originalValue: 15000,
-    quantity: 0,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p5",
-    name: "상품5",
-    value: 25000,
-    originalValue: 25000,
-    quantity: 10,
-    onSale: false,
-    suggestSale: false,
-  },
-];
 
 type ItemDiscount = {
   name: string;
@@ -88,7 +40,7 @@ export function CartPage() {
   const subTotalPrice = useMemo(
     () =>
       cartItems.reduce(
-        (total, item) => total + item.product.value * item.quantity,
+        (total, item) => total + item.product.price * item.quantity,
         0
       ),
     [cartItems]
@@ -157,7 +109,7 @@ export function CartPage() {
           }
 
           if (discountRate > 0) {
-            const itemTotal = item.product.value * item.quantity;
+            const itemTotal = item.product.price * item.quantity;
             const discount = itemTotal * discountRate;
             finalAmount -= discount;
           }
@@ -337,10 +289,10 @@ export function CartPage() {
             // 30% 확률
             return {
               ...product,
-              onSale: !product.onSale,
-              value: product.onSale
-                ? product.originalValue
-                : product.originalValue * (1 - DISCOUNT_RATES.LIGHTNING_SALE),
+              onSale: !product.isOnLightningSale,
+              value: product.isOnLightningSale
+                ? product.originalPrice
+                : product.originalPrice * (1 - DISCOUNT_RATES.LIGHTNING_SALE),
             };
           }
           return product;
@@ -360,14 +312,16 @@ export function CartPage() {
             // 20% 확률
             return {
               ...product,
-              suggestSale: !product.suggestSale,
-              value: product.suggestSale
-                ? product.onSale
-                  ? product.originalValue * (1 - DISCOUNT_RATES.LIGHTNING_SALE)
-                  : product.originalValue
-                : product.originalValue *
+              suggestSale: !product.isSuggestedSale,
+              value: product.isSuggestedSale
+                ? product.isOnLightningSale
+                  ? product.originalPrice * (1 - DISCOUNT_RATES.LIGHTNING_SALE)
+                  : product.originalPrice
+                : product.originalPrice *
                   (1 - DISCOUNT_RATES.SUGGEST_SALE) *
-                  (product.onSale ? 1 - DISCOUNT_RATES.LIGHTNING_SALE : 1),
+                  (product.isOnLightningSale
+                    ? 1 - DISCOUNT_RATES.LIGHTNING_SALE
+                    : 1),
             };
           }
           return product;

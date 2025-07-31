@@ -10,4 +10,8 @@ export {
   POINTS_SYSTEM,
   STOCK_THRESHOLDS,
   QUANTITY_CHANGE,
+  PRODUCT_IDS,
 } from "./business";
+
+// 초기 상품 리스트
+export { INITIAL_PRODUCTS } from "./productData";
