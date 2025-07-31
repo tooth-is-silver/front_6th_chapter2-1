@@ -1,9 +1,7 @@
-const App = () => {
-  return (
-    <div>
-      <h1>Shopping Cart</h1>
-    </div>
-  );
-};
+import { CartPage } from "./pages/CartPage";
+
+function App() {
+  return <CartPage />;
+}
 
 export default App;
