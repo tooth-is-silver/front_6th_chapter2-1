@@ -1,36 +1,25 @@
-import {
-  MESSAGES,
-  INITIAL_PRODUCTS,
-  DOM_IDS,
-  CSS_SELECTORS,
-  CSS_CLASS_NAMES,
-} from "./shared/constants/index.js";
+import { MESSAGES, DOM_IDS, CSS_SELECTORS } from "./shared/constants/index.js";
 
-import {
-  createCartItem,
-  updateCartItemPrices,
-} from "./ui/CartDisplayComponent.js";
+import { CartItem, updateCartItemPrices } from "./ui/CartDisplayComponent.js";
 
-import {
-  createGridContainer,
-  createLeftColumn,
-} from "./ui/GridContainerComponent.js";
+import { GridContainer, LeftColumn } from "./ui/GridContainerComponent.js";
 
-import { createHeader } from "./ui/HeaderComponent.js";
+import { Header } from "./ui/HeaderComponent.js";
 import { updateItemCount } from "./ui/ItemCountComponent.js";
-import { createManualModal } from "./ui/ManualModalComponent.js";
+import { ManualModal } from "./ui/ManualModalComponent.js";
 
 import {
-  createOrderSummary,
+  OrderSummary,
   updateSummaryDetails,
   updateCartTotal,
   updateLoyaltyPoints,
   updateDiscountInfo,
   updateTuesdaySpecial,
+  updateBonusPointsDisplay,
 } from "./ui/OrderSummaryComponent.js";
 
 import {
-  createProductSelector,
+  ProductSelector,
   updateProductOptions,
   updateStockInfo,
 } from "./ui/ProductSelectorComponent.js";
@@ -47,18 +36,13 @@ import { calculateTotalDiscount } from "./domains/cart/index.js";
 import { calculateTotalPoints } from "./domains/points/index.js";
 
 import { parseInteger, isTuesday as checkIsTuesday } from "./utils/index.js";
-
-// State
-let sum;
-let prodList = [...INITIAL_PRODUCTS];
-let bonusPts = 0;
-let itemCount = 0;
-let lastSel = null;
-let totalAmt = 0;
-let cartDisplay;
+import { appState } from "./state/AppState.js";
+import { createCartEventHandler } from "./handlers/cartHandlers.js";
+import { updateAllDisplays } from "./ui/DisplayUpdater.js";
 
 const onAddToCart = () => {
   const selectedItem = selectElement.value;
+  const prodList = appState.getProdList();
 
   if (!selectedItem || !findProductById(prodList, selectedItem)) {
     return;
@@ -77,39 +61,42 @@ const onAddToCart = () => {
       if (newQty <= itemToAdd.quantity + currentQty) {
         qtyElem.textContent = newQty;
         itemToAdd.quantity--;
+        appState.setProdList(prodList);
       } else {
         alert(MESSAGES.OUT_OF_STOCK);
       }
     } else {
-      const newItem = createCartItem({ product: itemToAdd });
-      cartDisplay.appendChild(newItem);
+      const newItem = CartItem({ product: itemToAdd });
+      appState.getCartDisplay().appendChild(newItem);
       itemToAdd.quantity--;
+      appState.setProdList(prodList);
     }
 
     calculateAndUpdateCart();
-    lastSel = selectedItem;
+    appState.setLastSel(selectedItem);
   }
 };
 
-const { selectorContainer, selectElement, stockInfo } = createProductSelector({
+const { selectorContainer, selectElement, stockInfo } = ProductSelector({
   onAddToCart,
 });
 
 function main() {
   const root = document.getElementById(DOM_IDS.APP);
-  const header = createHeader({ itemCount });
-  const gridContainer = createGridContainer();
-  const leftColumn = createLeftColumn();
+  const header = Header({ itemCount: appState.getItemCount() });
+  const gridContainer = GridContainer();
+  const leftColumn = LeftColumn();
 
   leftColumn.appendChild(selectorContainer);
-  cartDisplay = document.createElement("div");
+  const cartDisplay = document.createElement("div");
   leftColumn.appendChild(cartDisplay);
   cartDisplay.id = DOM_IDS.CART_ITEMS;
+  appState.setCartDisplay(cartDisplay);
 
-  const orderSummary = createOrderSummary();
-  sum = orderSummary.querySelector("#cart-total");
+  const orderSummary = OrderSummary();
+  appState.setSum(orderSummary.querySelector("#cart-total"));
 
-  const { manualToggle, manualOverlay } = createManualModal();
+  const { manualToggle, manualOverlay } = ManualModal();
 
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(orderSummary);
@@ -119,35 +106,50 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  updateProductOptions({ selectElement, products: prodList });
+  updateProductOptions({ selectElement, products: appState.getProdList() });
   calculateAndUpdateCart();
 
-  startLightningSaleTimer(prodList, () => {
-    updateProductOptions({ selectElement, products: prodList });
-    updateCartItemPrices({ cartDisplay, products: prodList });
+  startLightningSaleTimer(appState.getProdList(), () => {
+    appState.setProdList(appState.getProdList()); // Trigger state update
+    updateProductOptions({ selectElement, products: appState.getProdList() });
+    updateCartItemPrices({
+      cartDisplay: appState.getCartDisplay(),
+      products: appState.getProdList(),
+    });
     calculateAndUpdateCart();
   });
 
   startSuggestionTimer(
-    prodList,
-    () => lastSel,
+    appState.getProdList(),
+    () => appState.getLastSel(),
     () => {
-      updateProductOptions({ selectElement, products: prodList });
-      updateCartItemPrices({ cartDisplay, products: prodList });
+      appState.setProdList(appState.getProdList()); // Trigger state update
+      updateProductOptions({ selectElement, products: appState.getProdList() });
+      updateCartItemPrices({
+        cartDisplay: appState.getCartDisplay(),
+        products: appState.getProdList(),
+      });
       calculateAndUpdateCart();
     }
   );
 }
 
 function calculateAndUpdateCart() {
-  const cartItems = Array.from(cartDisplay.children);
+  const cartItems = Array.from(appState.getCartDisplay().children);
   const summaryDetails = document.getElementById(DOM_IDS.SUMMARY_DETAILS);
   const itemCountElement = document.getElementById(DOM_IDS.ITEM_COUNT);
 
   if (cartItems.length === 0) {
-    totalAmt = 0;
-    itemCount = 0;
-    updateAllDisplays();
+    appState.setTotalAmt(0);
+    appState.setItemCount(0);
+    updateAllDisplays({
+      sum: appState.getSum(),
+      totalAmt: appState.getTotalAmt(),
+      itemCount: appState.getItemCount(),
+      products: appState.getProdList(),
+      stockInfo,
+      isTuesday: checkIsTuesday(),
+    });
     return;
   }
 
@@ -155,7 +157,7 @@ function calculateAndUpdateCart() {
   let totalItemCount = 0;
 
   for (const cartItem of cartItems) {
-    const product = findProductById(prodList, cartItem.id);
+    const product = findProductById(appState.getProdList(), cartItem.id);
     if (product) {
       const quantity = parseInteger(
         cartItem.querySelector(CSS_SELECTORS.QUANTITY_NUMBER).textContent
@@ -165,125 +167,67 @@ function calculateAndUpdateCart() {
     }
   }
 
-  const discountResult = calculateTotalDiscount(subtotal, cartItems, prodList);
+  const discountResult = calculateTotalDiscount(
+    subtotal,
+    cartItems,
+    appState.getProdList()
+  );
 
-  totalAmt = discountResult.finalTotal;
-  itemCount = totalItemCount;
+  appState.setTotalAmt(discountResult.finalTotal);
+  appState.setItemCount(totalItemCount);
 
   const pointsResult = calculateTotalPoints(
-    totalAmt,
+    appState.getTotalAmt(),
     cartItems,
-    prodList,
+    appState.getProdList(),
     totalItemCount
   );
-  bonusPts = pointsResult.totalPoints;
+  appState.setBonusPts(pointsResult.totalPoints);
 
   updateSummaryDetails({
     summaryDetails,
     cartItems,
-    products: prodList,
+    products: appState.getProdList(),
     subTotalPrice: subtotal,
     itemCount: totalItemCount,
     itemDiscounts: discountResult.itemDiscounts,
     isTuesday: discountResult.isTuesday,
-    totalAmt,
+    totalAmt: appState.getTotalAmt(),
   });
 
-  const totalPriceElement = sum.querySelector(".text-2xl");
-  updateCartTotal({ totalPriceElement, totalAmt });
+  const totalPriceElement = appState.getSum().querySelector(".text-2xl");
+  updateCartTotal({ totalPriceElement, totalAmt: appState.getTotalAmt() });
 
-  updateLoyaltyPoints({ totalAmt });
+  updateLoyaltyPoints({ totalAmt: appState.getTotalAmt() });
 
   updateDiscountInfo({
     discRate: discountResult.discountRate,
     originalTotal: discountResult.originalTotal,
-    totalAmt,
+    totalAmt: appState.getTotalAmt(),
   });
 
-  updateTuesdaySpecial({ isTuesday: discountResult.isTuesday, totalAmt });
+  updateTuesdaySpecial({
+    isTuesday: discountResult.isTuesday,
+    totalAmt: appState.getTotalAmt(),
+  });
 
-  updateItemCount({ itemCountElement, itemCount });
+  updateItemCount({ itemCountElement, itemCount: appState.getItemCount() });
 
-  updateStockInfo({ stockInfo, products: prodList });
+  updateStockInfo({ stockInfo, products: appState.getProdList() });
 
-  updateBonusPointsDisplay(pointsResult);
-}
-
-function updateBonusPointsDisplay(pointsResult) {
-  const ptsTag = document.getElementById("loyalty-points");
-
-  if (ptsTag) {
-    if (bonusPts > 0) {
-      ptsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPts +
-        "p</span></div>" +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsResult.pointsDetails.join(", ") +
-        "</div>";
-      ptsTag.style.display = "block";
-    } else {
-      ptsTag.textContent = "적립 포인트: 0p";
-      ptsTag.style.display = "block";
-    }
-  }
-}
-
-function updateAllDisplays() {
-  const summaryDetails = document.getElementById(DOM_IDS.SUMMARY_DETAILS);
-  const itemCountElement = document.getElementById(DOM_IDS.ITEM_COUNT);
-  const totalPriceElement = sum.querySelector(".text-2xl");
-
-  summaryDetails.innerHTML = "";
-  updateCartTotal({ totalPriceElement, totalAmt });
-  updateLoyaltyPoints({ totalAmt });
-  updateDiscountInfo({ discRate: 0, originalTotal: 0, totalAmt });
-  updateTuesdaySpecial({ isTuesday: checkIsTuesday(), totalAmt });
-  updateItemCount({ itemCountElement, itemCount });
-  updateStockInfo({ stockInfo, products: prodList });
-
-  const ptsTag = document.getElementById("loyalty-points");
-  if (ptsTag) {
-    ptsTag.style.display = "none";
-  }
+  updateBonusPointsDisplay({
+    bonusPts: appState.getBonusPts(),
+    pointsResult,
+  });
 }
 
 main();
 
-cartDisplay.addEventListener("click", (event) => {
-  const target = event.target;
+const cartEventHandler = createCartEventHandler(
+  appState,
+  calculateAndUpdateCart,
+  updateProductOptions,
+  selectElement
+);
 
-  if (
-    target.classList.contains(CSS_CLASS_NAMES.QUANTITY_CHANGE) ||
-    target.classList.contains(CSS_CLASS_NAMES.REMOVE_ITEM)
-  ) {
-    const prodId = target.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    const product = findProductById(prodList, prodId);
-
-    if (target.classList.contains(CSS_CLASS_NAMES.QUANTITY_CHANGE)) {
-      const qtyChange = parseInteger(target.dataset.change);
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const currentQty = parseInteger(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
-
-      if (newQty > 0 && newQty <= product.quantity + currentQty) {
-        qtyElem.textContent = newQty;
-        product.quantity -= qtyChange;
-      } else if (newQty <= 0) {
-        product.quantity += currentQty;
-        itemElem.remove();
-      } else {
-        alert(MESSAGES.OUT_OF_STOCK);
-      }
-    } else if (target.classList.contains(CSS_CLASS_NAMES.REMOVE_ITEM)) {
-      const qtyElem = itemElem.querySelector(CSS_SELECTORS.QUANTITY_NUMBER);
-      const remQty = parseInteger(qtyElem.textContent);
-      product.quantity += remQty;
-      itemElem.remove();
-    }
-
-    calculateAndUpdateCart();
-    updateProductOptions({ selectElement, products: prodList });
-  }
-});
+appState.getCartDisplay().addEventListener("click", cartEventHandler);
