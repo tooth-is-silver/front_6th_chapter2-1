@@ -1,11 +1,11 @@
 export interface Product {
   id: string;
   name: string;
-  value: number;
-  originalValue: number;
+  price: number;
+  originalPrice: number;
   quantity: number;
-  onSale: boolean;
-  suggestSale: boolean;
+  isOnLightningSale: boolean;
+  isSuggestedSale: boolean;
 }
 
 export interface CartItem {
@@ -24,7 +24,7 @@ export interface CartState {
 }
 
 export interface DiscountInfo {
-  type: 'individual' | 'bulk' | 'tuesday' | 'lightning' | 'suggested';
+  type: "individual" | "bulk" | "tuesday" | "lightning" | "suggested";
   rate: number;
   applicable: boolean;
   amount: number;

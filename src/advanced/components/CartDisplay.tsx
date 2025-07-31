@@ -22,60 +22,60 @@ function CartItemComponent({
   const { product, quantity } = item;
 
   const priceDisplay = useMemo(() => {
-    if (product.onSale && product.suggestSale) {
+    if (product.isOnLightningSale && product.isSuggestedSale) {
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalValue.toLocaleString()}
+            ₩{product.originalPrice.toLocaleString()}
           </span>{" "}
           <span className="text-purple-600">
-            ₩{product.value.toLocaleString()}
+            ₩{product.price.toLocaleString()}
           </span>
         </>
       );
-    } else if (product.onSale) {
+    } else if (product.isOnLightningSale) {
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalValue.toLocaleString()}
+            ₩{product.originalPrice.toLocaleString()}
           </span>{" "}
           <span className="text-red-500">
-            ₩{product.value.toLocaleString()}
+            ₩{product.price.toLocaleString()}
           </span>
         </>
       );
-    } else if (product.suggestSale) {
+    } else if (product.isSuggestedSale) {
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalValue.toLocaleString()}
+            ₩{product.originalPrice.toLocaleString()}
           </span>{" "}
           <span className="text-blue-500">
-            ₩{product.value.toLocaleString()}
+            ₩{product.price.toLocaleString()}
           </span>
         </>
       );
     } else {
-      return `₩${product.value.toLocaleString()}`;
+      return `₩${product.price.toLocaleString()}`;
     }
   }, [
-    product.onSale,
-    product.suggestSale,
-    product.originalValue,
-    product.value,
+    product.isOnLightningSale,
+    product.isSuggestedSale,
+    product.originalPrice,
+    product.price,
   ]);
 
   const nameDisplay = useMemo(() => {
     const saleIcon =
-      product.onSale && product.suggestSale
+      product.isOnLightningSale && product.isSuggestedSale
         ? "⚡💝"
-        : product.onSale
+        : product.isOnLightningSale
         ? "⚡"
-        : product.suggestSale
+        : product.isSuggestedSale
         ? "💝"
         : "";
     return saleIcon + product.name;
-  }, [product.onSale, product.suggestSale, product.name]);
+  }, [product.isOnLightningSale, product.isSuggestedSale, product.name]);
 
   const shouldBoldPrice = quantity >= DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT;
 

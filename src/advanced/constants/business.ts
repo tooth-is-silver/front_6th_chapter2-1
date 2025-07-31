@@ -14,36 +14,36 @@ export const DISCOUNT_THRESHOLDS = {
 export const DISCOUNT_RATES = {
   // 개별 상품 할인율 (10개 이상)
   INDIVIDUAL: {
-    KEYBOARD: 0.1,    // 10%
-    MOUSE: 0.15,      // 15%
+    KEYBOARD: 0.1, // 10%
+    MOUSE: 0.15, // 15%
     MONITOR_ARM: 0.2, // 20%
-    SPEAKER: 0.25,    // 25%
+    SPEAKER: 0.25, // 25%
   },
-  
+
   // 대량구매 할인율 (30개 이상)
-  BULK: 0.25,         // 25%
-  
+  BULK: 0.25, // 25%
+
   // 특별 할인
-  TUESDAY: 0.1,       // 10% 추가 할인
+  TUESDAY: 0.1, // 10% 추가 할인
   LIGHTNING_SALE: 0.2, // 20% 번개세일
-  SUGGEST_SALE: 0.05,  // 5% 추천할인
-  SUPER_SALE: 0.25,    // 25% 슈퍼세일 (번개+추천 중복)
+  SUGGEST_SALE: 0.05, // 5% 추천할인
+  SUPER_SALE: 0.25, // 25% 슈퍼세일 (번개+추천 중복)
 } as const;
 
 // 포인트 시스템 상수
 export const POINTS_SYSTEM = {
   /** 기본 적립률 */
-  BASE_RATE: 0.001,  // 0.1%
-  
+  BASE_RATE: 0.001, // 0.1%
+
   /** 화요일 포인트 배수 */
   TUESDAY_MULTIPLIER: 2,
-  
+
   /** 콤보 보너스 포인트 */
   COMBO_BONUS: {
-    KEYBOARD_MOUSE: 50,  // 키보드+마우스 조합
-    FULL_SET: 100,       // 전체 상품 조합
+    KEYBOARD_MOUSE: 50, // 키보드+마우스 조합
+    FULL_SET: 100, // 전체 상품 조합
   },
-  
+
   /** 수량별 보너스 포인트 */
   QUANTITY_BONUS: {
     TIER_1: { threshold: 10, points: 20 },
@@ -67,3 +67,12 @@ export const QUANTITY_CHANGE = {
   DECREASE: -1,
   INCREASE: 1,
 } as const;
+
+// 상품 ID 상수
+export const PRODUCT_IDS = {
+  KEYBOARD: "p1",
+  MOUSE: "p2",
+  MONITOR_ARM: "p3",
+  LAPTOP_POUCH: "p4",
+  SPEAKER: "p5",
+};

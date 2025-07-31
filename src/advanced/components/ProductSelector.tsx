@@ -17,25 +17,31 @@ type ProductOptionProps = {
 function ProductOption({ product }: ProductOptionProps) {
   const optionText = useMemo(() => {
     if (product.quantity === STOCK_THRESHOLDS.OUT_OF_STOCK) {
-      return `${product.name} - ${product.value}원 (품절)`;
+      return `${product.name} - ${product.price}원 (품절)`;
     }
 
-    if (product.onSale && product.suggestSale) {
-      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (${Math.round(DISCOUNT_RATES.SUPER_SALE * 100)}% SUPER SALE!)`;
-    } else if (product.onSale) {
-      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (${Math.round(DISCOUNT_RATES.LIGHTNING_SALE * 100)}% SALE!)`;
-    } else if (product.suggestSale) {
-      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (${Math.round(DISCOUNT_RATES.SUGGEST_SALE * 100)}% 추천할인!)`;
+    if (product.isOnLightningSale && product.isSuggestedSale) {
+      return `⚡💝${product.name} - ${product.originalPrice}원 → ${
+        product.price
+      }원 (${Math.round(DISCOUNT_RATES.SUPER_SALE * 100)}% SUPER SALE!)`;
+    } else if (product.isOnLightningSale) {
+      return `⚡${product.name} - ${product.originalPrice}원 → ${
+        product.price
+      }원 (${Math.round(DISCOUNT_RATES.LIGHTNING_SALE * 100)}% SALE!)`;
+    } else if (product.isSuggestedSale) {
+      return `💝${product.name} - ${product.originalPrice}원 → ${
+        product.price
+      }원 (${Math.round(DISCOUNT_RATES.SUGGEST_SALE * 100)}% 추천할인!)`;
     } else {
-      return `${product.name} - ${product.value}원`;
+      return `${product.name} - ${product.price}원`;
     }
   }, [
     product.name,
-    product.value,
-    product.originalValue,
+    product.price,
+    product.originalPrice,
     product.quantity,
-    product.onSale,
-    product.suggestSale,
+    product.isOnLightningSale,
+    product.isSuggestedSale,
   ]);
 
   const optionClassName = useMemo(() => {
@@ -43,16 +49,16 @@ function ProductOption({ product }: ProductOptionProps) {
       return "text-gray-400";
     }
 
-    if (product.onSale && product.suggestSale) {
+    if (product.isOnLightningSale && product.isSuggestedSale) {
       return "text-purple-600 font-bold";
-    } else if (product.onSale) {
+    } else if (product.isOnLightningSale) {
       return "text-red-500 font-bold";
-    } else if (product.suggestSale) {
+    } else if (product.isSuggestedSale) {
       return "text-blue-500 font-bold";
     }
 
     return "";
-  }, [product.quantity, product.onSale, product.suggestSale]);
+  }, [product.quantity, product.isOnLightningSale, product.isSuggestedSale]);
 
   return (
     <option

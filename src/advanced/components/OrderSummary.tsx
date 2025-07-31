@@ -44,7 +44,7 @@ function SummaryDetails({
         id: item.product.id,
         name: item.product.name,
         quantity: item.quantity,
-        total: item.product.value * item.quantity,
+        total: item.product.price * item.quantity,
       })),
     [cartItems]
   );
@@ -74,8 +74,12 @@ function SummaryDetails({
 
       {itemCount >= DISCOUNT_THRESHOLDS.BULK_DISCOUNT ? (
         <div className="flex justify-between text-sm tracking-wide text-green-400">
-          <span className="text-xs">🎉 대량구매 할인 ({DISCOUNT_THRESHOLDS.BULK_DISCOUNT}개 이상)</span>
-          <span className="text-xs">-{Math.round(DISCOUNT_RATES.BULK * 100)}%</span>
+          <span className="text-xs">
+            🎉 대량구매 할인 ({DISCOUNT_THRESHOLDS.BULK_DISCOUNT}개 이상)
+          </span>
+          <span className="text-xs">
+            -{Math.round(DISCOUNT_RATES.BULK * 100)}%
+          </span>
         </div>
       ) : (
         itemDiscounts.map((item) => (
@@ -83,7 +87,9 @@ function SummaryDetails({
             key={item.name}
             className="flex justify-between text-sm tracking-wide text-green-400"
           >
-            <span className="text-xs">{item.name} ({DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
+            <span className="text-xs">
+              {item.name} ({DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)
+            </span>
             <span className="text-xs">-{item.discount}%</span>
           </div>
         ))
@@ -92,7 +98,9 @@ function SummaryDetails({
       {isTuesday && totalAmount > 0 && (
         <div className="flex justify-between text-sm tracking-wide text-purple-400">
           <span className="text-xs">🌟 화요일 추가 할인</span>
-          <span className="text-xs">-{Math.round(DISCOUNT_RATES.TUESDAY * 100)}%</span>
+          <span className="text-xs">
+            -{Math.round(DISCOUNT_RATES.TUESDAY * 100)}%
+          </span>
         </div>
       )}
 
