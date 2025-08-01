@@ -32,6 +32,5 @@ export const CSS_CLASS_NAMES = {
 // 매직 넘버들
 export const MAGIC_NUMBERS = {
   STOCK_WARNING_THRESHOLD: 50, // 전체 재고 경고 임계값
-  PERCENTAGE_MULTIPLIER: 100, // 퍼센트 계산용
   TUESDAY_DAY_INDEX: 2, // 화요일 인덱스
 };

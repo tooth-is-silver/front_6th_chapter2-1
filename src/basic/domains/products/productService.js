@@ -40,12 +40,4 @@ export function getRandomProduct(products) {
   return availableProducts[randomIndex];
 }
 
-export function getLowStockProducts(products, threshold) {
-  return products
-    .filter((product) => product.quantity < threshold && product.quantity > 0)
-    .map((product) => product.name);
-}
 
-export function getTotalStock(products) {
-  return products.reduce((total, product) => total + product.quantity, 0);
-}

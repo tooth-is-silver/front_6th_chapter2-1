@@ -5,15 +5,6 @@ export const TIMING = {
   SUGGESTION_DELAY_MAX: 20000         // 추천 알림 최대 지연시간
 };
 
-// CSS 클래스 상수
-export const CSS_CLASSES = {
-  SALE_COLORS: {
-    LIGHTNING: "text-red-500",
-    SUGGESTED: "text-blue-500", 
-    COMBO: "text-purple-600"
-  },
-  STOCK_WARNING: "text-red-500"
-};
 
 // 메시지 상수
 export const MESSAGES = {
