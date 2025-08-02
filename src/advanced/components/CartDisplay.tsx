@@ -118,7 +118,7 @@ function CartItemComponent({
           {nameDisplay}
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p className="text-xs text-black mb-3">{priceDisplay}</p>
+        <p className="text-xs text-black mb-3">{priceDisplay()}</p>
 
         <div className="flex items-center gap-4">
           <button
@@ -145,7 +145,7 @@ function CartItemComponent({
             shouldBoldPrice ? "font-bold" : ""
           }`}
         >
-          {priceDisplay}
+          {priceDisplay()}
         </div>
         <button
           onClick={handleRemove}

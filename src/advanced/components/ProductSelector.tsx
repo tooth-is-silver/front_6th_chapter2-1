@@ -78,11 +78,9 @@ function StockInfo({ products }: { products: Product[] }) {
     return products
       .filter((item) => item.quantity < lowStockThreshold)
       .map((item) => {
-        if (item.quantity > STOCK_THRESHOLDS.OUT_OF_STOCK) {
-          return `${item.name}: 재고 부족 (${item.quantity}개 남음)`;
-        } else {
-          return `${item.name}: 품절`;
-        }
+        item.quantity > STOCK_THRESHOLDS.OUT_OF_STOCK
+          ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
+          : `${item.name}: 품절`;
       })
       .join("\n");
   }, [products]);
