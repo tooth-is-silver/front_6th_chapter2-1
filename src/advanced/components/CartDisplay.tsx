@@ -16,6 +16,25 @@ type CartDisplayProps = {
   onRemove: (productId: string) => void;
 };
 
+const PriceDisplayComponent = ({
+  color = "blue",
+  originalPrice,
+  price,
+}: {
+  color: string;
+  originalPrice: number;
+  price: number;
+}) => {
+  return (
+    <>
+      <span className="line-through text-gray-400">
+        ₩{originalPrice.toLocaleString()}
+      </span>{" "}
+      <span className={`text-${color}`}>₩{price.toLocaleString()}</span>
+    </>
+  );
+};
+
 function CartItemComponent({
   item,
   products,
@@ -29,38 +48,38 @@ function CartItemComponent({
     filteredItem;
   const { quantity } = item;
 
-  const priceDisplay = useMemo(() => {
+  const priceDisplay = () => {
     if (isOnLightningSale && isSuggestedSale) {
+      const color = "purple-600";
       return (
-        <>
-          <span className="line-through text-gray-400">
-            ₩{originalPrice.toLocaleString()}
-          </span>{" "}
-          <span className="text-purple-600">₩{price.toLocaleString()}</span>
-        </>
+        <PriceDisplayComponent
+          originalPrice={originalPrice}
+          price={price}
+          color={color}
+        />
       );
     } else if (isOnLightningSale) {
+      const color = "red-500";
       return (
-        <>
-          <span className="line-through text-gray-400">
-            ₩{originalPrice.toLocaleString()}
-          </span>{" "}
-          <span className="text-red-500">₩{price.toLocaleString()}</span>
-        </>
+        <PriceDisplayComponent
+          originalPrice={originalPrice}
+          price={price}
+          color={color}
+        />
       );
     } else if (isSuggestedSale) {
+      const color = "blue-500";
       return (
-        <>
-          <span className="line-through text-gray-400">
-            ₩{originalPrice.toLocaleString()}
-          </span>{" "}
-          <span className="text-blue-500">₩{price.toLocaleString()}</span>
-        </>
+        <PriceDisplayComponent
+          originalPrice={originalPrice}
+          price={price}
+          color={color}
+        />
       );
     } else {
       return `₩${price.toLocaleString()}`;
     }
-  }, [isOnLightningSale, isSuggestedSale, originalPrice, price]);
+  };
 
   const nameDisplay = useMemo(() => {
     const saleIcon =
